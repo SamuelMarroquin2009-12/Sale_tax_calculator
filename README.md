@@ -4,7 +4,7 @@ Aplicación que calcula el impuesto de una compra según su categoría de produc
 
 ## Nombres de los creadores
 - Samuel Marroquín
--
+- Isabella Ruiz Velasquez
 ## Entradas
 | Categoría | Dato de entrada | Ejemplo |
 |---|---|---|
