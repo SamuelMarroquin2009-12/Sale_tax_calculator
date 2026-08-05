@@ -96,3 +96,6 @@ class ImpuestosTest(unittest.TestCase):
             precio_unitario,
             cantidad
         )
+
+if __name__ == "__main__":
+    unittest.main()
