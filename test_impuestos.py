@@ -28,6 +28,7 @@ class ImpuestosTest(unittest.TestCase):
         valor_total, impuesto = ImpuestosLogic.calcular_impuesto(categoria, precio_unitario, cantidad)
         self.assertEqual(3500, valor_total)
         self.assertEqual(511, impuesto)
+        
     # ---------- CASOS EXTRAORDINARIOS ----------
     def test_extraordinario_1(self):
         categoria = ImpuestosLogic.IVA_5
@@ -78,3 +79,20 @@ class ImpuestosTest(unittest.TestCase):
         # Verificacion
         self.assertEqual(valor_total_esperado, valor_total)
         self.assertEqual(impuesto_esperado, impuesto)
+
+
+    # ---------- CASOS DE ERROR ----------
+    def test_error_1(self):
+        # Entradas
+        categoria = ImpuestosLogic.IVA_19
+        precio_unitario = -50000
+        cantidad = 1
+      
+        # Verificacion
+        self.assertRaises(
+            ImpuestosLogic.NegativePriceError,
+            ImpuestosLogic.calcular_impuesto,
+            categoria,
+            precio_unitario,
+            cantidad
+        )
