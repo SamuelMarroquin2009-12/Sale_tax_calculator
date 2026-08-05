@@ -37,4 +37,44 @@ class ImpuestosTest(unittest.TestCase):
         self.assertAlmostEqual(15499.75, valor_total, 2)
         self.assertAlmostEqual(774.9875, impuesto, 2)
 
-##
+    def test_extraordinario_2(self):
+        # Entradas
+        categoria = ImpuestosLogic.SUNTUARIOS
+        precio_unitario = 850000000
+        cantidad = 1
+        
+        # Funcionalidad
+        valor_total, impuesto = ImpuestosLogic.calcular_impuesto(
+            categoria,
+            precio_unitario,
+            cantidad
+        )
+        
+        # Salidas Esperadas
+        valor_total_esperado = 850000000
+        impuesto_esperado = 161500000
+       
+        # Verificacion
+        self.assertEqual(valor_total_esperado, valor_total)
+        self.assertEqual(impuesto_esperado, impuesto)
+
+    def test_extraordinario_3(self):
+        # Entradas
+        categoria = ImpuestosLogic.BOLSAS_PLASTICAS
+        precio_unitario = 500
+        cantidad = 1
+    
+        # Funcionalidad
+        valor_total, impuesto = ImpuestosLogic.calcular_impuesto(
+            categoria,
+            precio_unitario,
+            cantidad
+        )
+        
+        # Salidas Esperadas
+        valor_total_esperado = 500
+        impuesto_esperado = 73
+        
+        # Verificacion
+        self.assertEqual(valor_total_esperado, valor_total)
+        self.assertEqual(impuesto_esperado, impuesto)
