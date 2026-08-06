@@ -97,5 +97,50 @@ class ImpuestosTest(unittest.TestCase):
             cantidad
         )
 
+    def test_error_2(self):
+        # Entradas
+        categoria = ImpuestosLogic.INC_RESTAURANTES
+        precio_unitario = "abc"
+        cantidad = 1
+
+        # Verificacion
+        self.assertRaises(
+            ImpuestosLogic.NonNumericPriceError,
+            ImpuestosLogic.calcular_impuesto,
+            categoria,
+            precio_unitario,
+            cantidad
+        )
+
+    def test_error_3(self):
+        # Entradas
+        categoria = ImpuestosLogic.BOLSAS_PLASTICAS
+        precio_unitario = 500
+        cantidad = 0
+
+        # Verificacion
+        self.assertRaises(
+            ImpuestosLogic.ZeroOrNegativeQuantityError,
+            ImpuestosLogic.calcular_impuesto,
+            categoria,
+            precio_unitario,
+            cantidad
+        )
+
+    def test_error_4(self):
+        # Entradas
+        categoria = ImpuestosLogic.CIGARRILLOS_VAPEADORES
+        precio_unitario = 15000
+        cantidad = -10
+
+        # Verificacion
+        self.assertRaises(
+            ImpuestosLogic.NegativeQuantityError,
+            ImpuestosLogic.calcular_impuesto,
+            categoria,
+            precio_unitario,
+            cantidad
+        )
+
 if __name__ == "__main__":
     unittest.main()
