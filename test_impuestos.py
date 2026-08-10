@@ -28,7 +28,7 @@ class ImpuestosTest(unittest.TestCase):
         valor_total, impuesto = ImpuestosLogic.calcular_impuesto(categoria, precio_unitario, cantidad)
         self.assertEqual(3500, valor_total)
         self.assertEqual(511, impuesto)
-        
+ 
     # ---------- CASOS EXTRAORDINARIOS ----------
     def test_extraordinario_1(self):
         categoria = ImpuestosLogic.IVA_5
@@ -37,57 +37,57 @@ class ImpuestosTest(unittest.TestCase):
         valor_total, impuesto = ImpuestosLogic.calcular_impuesto(categoria, precio_unitario, cantidad)
         self.assertAlmostEqual(15499.75, valor_total, 2)
         self.assertAlmostEqual(774.9875, impuesto, 2)
-
+ 
     def test_extraordinario_2(self):
         # Entradas
         categoria = ImpuestosLogic.SUNTUARIOS
         precio_unitario = 850000000
         cantidad = 1
-        
+ 
         # Funcionalidad
         valor_total, impuesto = ImpuestosLogic.calcular_impuesto(
             categoria,
             precio_unitario,
             cantidad
         )
-        
+ 
         # Salidas Esperadas
         valor_total_esperado = 850000000
         impuesto_esperado = 161500000
-       
+ 
         # Verificacion
         self.assertEqual(valor_total_esperado, valor_total)
         self.assertEqual(impuesto_esperado, impuesto)
-
+ 
     def test_extraordinario_3(self):
         # Entradas
         categoria = ImpuestosLogic.BOLSAS_PLASTICAS
         precio_unitario = 500
         cantidad = 1
-    
+ 
         # Funcionalidad
         valor_total, impuesto = ImpuestosLogic.calcular_impuesto(
             categoria,
             precio_unitario,
             cantidad
         )
-        
+ 
         # Salidas Esperadas
         valor_total_esperado = 500
         impuesto_esperado = 73
-        
+ 
         # Verificacion
         self.assertEqual(valor_total_esperado, valor_total)
         self.assertEqual(impuesto_esperado, impuesto)
-
-
+ 
+ 
     # ---------- CASOS DE ERROR ----------
     def test_error_1(self):
         # Entradas
         categoria = ImpuestosLogic.IVA_19
         precio_unitario = -50000
         cantidad = 1
-      
+ 
         # Verificacion
         self.assertRaises(
             ImpuestosLogic.NegativePriceError,
@@ -96,13 +96,13 @@ class ImpuestosTest(unittest.TestCase):
             precio_unitario,
             cantidad
         )
-
+ 
     def test_error_2(self):
         # Entradas
         categoria = ImpuestosLogic.INC_RESTAURANTES
         precio_unitario = "abc"
         cantidad = 1
-
+ 
         # Verificacion
         self.assertRaises(
             ImpuestosLogic.NonNumericPriceError,
@@ -111,13 +111,13 @@ class ImpuestosTest(unittest.TestCase):
             precio_unitario,
             cantidad
         )
-
+ 
     def test_error_3(self):
         # Entradas
         categoria = ImpuestosLogic.BOLSAS_PLASTICAS
         precio_unitario = 500
         cantidad = 0
-
+ 
         # Verificacion
         self.assertRaises(
             ImpuestosLogic.ZeroOrNegativeQuantityError,
@@ -126,13 +126,13 @@ class ImpuestosTest(unittest.TestCase):
             precio_unitario,
             cantidad
         )
-
+ 
     def test_error_4(self):
         # Entradas
         categoria = ImpuestosLogic.CIGARRILLOS_VAPEADORES
         precio_unitario = 15000
         cantidad = -10
-
+ 
         # Verificacion
         self.assertRaises(
             ImpuestosLogic.NegativeQuantityError,
@@ -141,6 +141,6 @@ class ImpuestosTest(unittest.TestCase):
             precio_unitario,
             cantidad
         )
-
+ 
 if __name__ == "__main__":
     unittest.main()
