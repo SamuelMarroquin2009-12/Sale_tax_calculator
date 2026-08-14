@@ -7,16 +7,19 @@ Aplicación web que calcula el impuesto de una compra según su categoría de pr
 - Isabella Ruiz Velasquez
 
 ## Entradas
-Para cualquier categoría, el usuario ingresa dos datos:
+El usuario ingresa tres datos:
 
 | Campo | Descripción | Ejemplo |
 |---|---|---|
+| Categoría | La categoría del producto que va a comprar (una de las 8 definidas) | `iva19` |
 | Precio unitario (COP) | Precio de una unidad del producto (en cigarrillos/vapeadores es el precio por mililitro) | 50.000 |
 | Cantidad | Unidades compradas (en cigarrillos/vapeadores representa mililitros) | 2 |
 
+Las 8 categorías disponibles son: canasta básica/exento, alimentos IVA 5%, bienes generales IVA 19%, restaurantes (INC 8%), licores, bienes suntuarios, bolsas plásticas y cigarrillos/vapeadores.
+
 ## Proceso
-1. El usuario ingresa el precio unitario y la cantidad, y selecciona la categoría.
-2. Se valida que ambos datos sean numéricos y mayores a cero; si no, se lanza una excepción y se detiene la ejecución.
+1. El usuario ingresa la categoría, el precio unitario y la cantidad.
+2. Se valida que la categoría exista, y que precio y cantidad sean numéricos y mayores a cero; si no, se lanza una excepción y se detiene la ejecución.
 3. Se calcula el valor total: `valor_total = precio_unitario × cantidad`.
 4. Se calcula el impuesto según la fórmula de la categoría:
 
@@ -36,4 +39,4 @@ Para cualquier categoría, el usuario ingresa dos datos:
 - **Caso de error:** excepción con mensaje indicando la causa (ej. "El precio unitario no puede ser negativo").
 
 ## Casos de prueba
-Ver `Casos_de_Prueba_Impuestos.xlsx`: 10 casos (3 normales, 3 extraordinarios, 4 error).
+Ver `Casos_de_prueba LPCL.xlsx`: 10 casos (3 normales, 3 extraordinarios, 4 error).
