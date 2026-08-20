@@ -1,0 +1,23 @@
+# Archivos de configuración de PyCharm / IDE
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de cobertura / pruebas
+.pytest_cache/
+.coverage
+htmlcov/
