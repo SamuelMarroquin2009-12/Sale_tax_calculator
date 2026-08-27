@@ -53,18 +53,15 @@ def main():
         print(f"Valor Total:  $ {valor_total:,.2f}")
         print(f"Impuesto:     $ {impuesto:,.2f}")
 
-    except impuestos_logic.InvalidCategoryError:
-        print("ERROR: La categoría ingresada no es válida")
-    except impuestos_logic.NonNumericPriceError:
-        print("ERROR: El precio unitario debe ser numérico")
-    except impuestos_logic.NegativePriceError:
-        print("ERROR: El precio unitario no puede ser negativo")
-    except impuestos_logic.NonNumericQuantityError:
-        print("ERROR: La cantidad debe ser numérica")
-    except impuestos_logic.ZeroOrNegativeQuantityError:
-        print("ERROR: La cantidad debe ser mayor a 0")
-    except impuestos_logic.NegativeQuantityError:
-        print("ERROR: La cantidad no puede ser negativa")
+    except (
+    impuestos_logic.InvalidCategoryError,
+    impuestos_logic.NonNumericPriceError,
+    impuestos_logic.NegativePriceError,
+    impuestos_logic.NonNumericQuantityError,
+    impuestos_logic.ZeroOrNegativeQuantityError,
+    impuestos_logic.NegativeQuantityError,
+) as error:
+    print(f"ERROR: {error}")
 
 
 if __name__ == "__main__":
