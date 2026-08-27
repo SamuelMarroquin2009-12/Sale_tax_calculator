@@ -56,7 +56,7 @@ def main():
     except (
         impuestos_logic.InvalidCategoryError,
         impuestos_logic.NonNumericPriceError,
-        impuestos_logic.NegativePriceError,
+        impuestos_logic.InvalidPriceError,
         impuestos_logic.NonNumericQuantityError,
         impuestos_logic.ZeroOrNegativeQuantityError,
         impuestos_logic.NegativeQuantityError,

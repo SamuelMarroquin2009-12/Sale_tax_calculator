@@ -109,7 +109,7 @@ def calcular_impuesto(
     Excepciones:
         InvalidCategoryError        si la categoria no existe
         NonNumericPriceError        si el precio no es numerico
-        NegativePriceError          si el precio es negativo
+        InvalidPriceError           si el precio es cero o negativo
         NonNumericQuantityError     si la cantidad no es numerica
         ZeroOrNegativeQuantityError si la cantidad es igual a cero
         NegativeQuantityError       si la cantidad es negativa
