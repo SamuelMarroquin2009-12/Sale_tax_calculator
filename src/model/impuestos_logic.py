@@ -53,8 +53,8 @@ IMPUESTO_ESPECIFICO_VAPEADORES_POR_ML = 2000
 # ------------------------------------------------------------------
 # Excepciones del proyecto
 # ------------------------------------------------------------------
-class NegativePriceError(Exception):
-    """El precio unitario ingresado es negativo."""
+class InvalidPriceError(Exception):
+    """El precio unitario ingresado es cero o negativo."""
     pass
 
 
@@ -122,8 +122,9 @@ def calcular_impuesto(
     if isinstance(precio_unitario, bool) or not isinstance(precio_unitario, (int, float)):
         raise NonNumericPriceError("El precio unitario debe ser numérico")
 
-    if precio_unitario < 0:
-        raise NegativePriceError("El precio unitario no puede ser negativo")
+    if precio_unitario <= 0:
+        raise InvalidPriceError(
+            "El precio unitario debe ser mayor que cero")
 
     # --- Validacion de la cantidad ---
     if isinstance(cantidad, bool) or not isinstance(cantidad, (int, float)):

@@ -92,7 +92,7 @@ class ImpuestosTest(unittest.TestCase):
         cantidad = 1
 
         # Verificacion
-        with self.assertRaises(impuestos_logic.NegativePriceError):
+        with self.assertRaises(impuestos_logic.InvalidPriceError):
             impuestos_logic.calcular_impuesto(categoria, precio_unitario, cantidad)
  
     def test_error_2(self):
@@ -124,6 +124,14 @@ class ImpuestosTest(unittest.TestCase):
         # Verificacion
         with self.assertRaises(impuestos_logic.NegativeQuantityError):
             impuestos_logic.calcular_impuesto(categoria, precio_unitario, cantidad)
+
+    def test_precio_cero_lanza_error(self):
+        with self.assertRaises(impuestos_logic.InvalidPriceError):
+            impuestos_logic.calcular_impuesto(
+                categoria=impuestos_logic.IVA_19,
+                precio_unitario=0,
+                cantidad=1,
+            )
  
 if __name__ == "__main__":
     unittest.main()

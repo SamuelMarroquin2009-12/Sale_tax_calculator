@@ -54,14 +54,14 @@ def main():
         print(f"Impuesto:     $ {impuesto:,.2f}")
 
     except (
-    impuestos_logic.InvalidCategoryError,
-    impuestos_logic.NonNumericPriceError,
-    impuestos_logic.NegativePriceError,
-    impuestos_logic.NonNumericQuantityError,
-    impuestos_logic.ZeroOrNegativeQuantityError,
-    impuestos_logic.NegativeQuantityError,
-) as error:
-    print(f"ERROR: {error}")
+        impuestos_logic.InvalidCategoryError,
+        impuestos_logic.NonNumericPriceError,
+        impuestos_logic.NegativePriceError,
+        impuestos_logic.NonNumericQuantityError,
+        impuestos_logic.ZeroOrNegativeQuantityError,
+        impuestos_logic.NegativeQuantityError,
+    ) as error:
+        print(f"ERROR: {error}")
 
 
 if __name__ == "__main__":
