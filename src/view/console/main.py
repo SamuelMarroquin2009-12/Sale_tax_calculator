@@ -6,7 +6,7 @@ import sys
 sys.path.append("src")
 
 # La Vista puede usar al Modelo (regla de acoplamiento del MVC)
-from model import impuestos_logic as ImpuestosLogic
+from model import impuestos_logic
 
 
 def leer_numero(mensaje):
@@ -25,14 +25,14 @@ def leer_numero(mensaje):
 
 def mostrar_categorias():
     print("Categorías disponibles:")
-    print(f"  {ImpuestosLogic.EXENTO}              -> Canasta básica / Exento")
-    print(f"  {ImpuestosLogic.IVA_5}                -> Alimentos con IVA 5%")
-    print(f"  {ImpuestosLogic.IVA_19}               -> Bienes generales IVA 19%")
-    print(f"  {ImpuestosLogic.INC_RESTAURANTES}     -> Restaurantes (INC 8%)")
-    print(f"  {ImpuestosLogic.LICORES}              -> Licores")
-    print(f"  {ImpuestosLogic.SUNTUARIOS}           -> Bienes suntuarios")
-    print(f"  {ImpuestosLogic.BOLSAS_PLASTICAS}     -> Bolsas plásticas")
-    print(f"  {ImpuestosLogic.CIGARRILLOS_VAPEADORES} -> Cigarrillos / Vapeadores")
+    print(f"  {impuestos_logic.EXENTO}              -> Canasta básica / Exento")
+    print(f"  {impuestos_logic.IVA_5}                -> Alimentos con IVA 5%")
+    print(f"  {impuestos_logic.IVA_19}               -> Bienes generales IVA 19%")
+    print(f"  {impuestos_logic.INC_RESTAURANTES}     -> Restaurantes (INC 8%)")
+    print(f"  {impuestos_logic.LICORES}              -> Licores")
+    print(f"  {impuestos_logic.SUNTUARIOS}           -> Bienes suntuarios")
+    print(f"  {impuestos_logic.BOLSAS_PLASTICAS}     -> Bolsas plásticas")
+    print(f"  {impuestos_logic.CIGARRILLOS_VAPEADORES} -> Cigarrillos / Vapeadores")
 
 
 def main():
@@ -46,24 +46,24 @@ def main():
     cantidad = leer_numero("Ingrese la cantidad: ")
 
     try:
-        valor_total, impuesto = ImpuestosLogic.calcular_impuesto(
+        valor_total, impuesto = impuestos_logic.calcular_impuesto(
             categoria, precio_unitario, cantidad
         )
         print()
         print(f"Valor Total:  $ {valor_total:,.2f}")
         print(f"Impuesto:     $ {impuesto:,.2f}")
 
-    except ImpuestosLogic.InvalidCategoryError:
+    except impuestos_logic.InvalidCategoryError:
         print("ERROR: La categoría ingresada no es válida")
-    except ImpuestosLogic.NonNumericPriceError:
+    except impuestos_logic.NonNumericPriceError:
         print("ERROR: El precio unitario debe ser numérico")
-    except ImpuestosLogic.NegativePriceError:
+    except impuestos_logic.NegativePriceError:
         print("ERROR: El precio unitario no puede ser negativo")
-    except ImpuestosLogic.NonNumericQuantityError:
+    except impuestos_logic.NonNumericQuantityError:
         print("ERROR: La cantidad debe ser numérica")
-    except ImpuestosLogic.ZeroOrNegativeQuantityError:
+    except impuestos_logic.ZeroOrNegativeQuantityError:
         print("ERROR: La cantidad debe ser mayor a 0")
-    except ImpuestosLogic.NegativeQuantityError:
+    except impuestos_logic.NegativeQuantityError:
         print("ERROR: La cantidad no puede ser negativa")
 
 
