@@ -1,19 +1,7 @@
-# impuestos_logic.py
-# Calculadora de Impuestos de Compra - Colombia
-# Autores: Samuel Marroquin, Isabella Ruiz Velasquez
-#
-# Este modulo contiene la funcionalidad principal del proyecto:
-# recibe el precio unitario y la cantidad de un producto, y calcula
-# el valor total de la compra junto con el impuesto que corresponde
-# segun su categoria.
+"""Lógica de negocio de la calculadora de impuestos."""
 
-from typing import Union
+Numero = int | float
 
-Numero = Union[int, float]
-
-# ------------------------------------------------------------------
-# Categorias del proyecto (8 en total)
-# ------------------------------------------------------------------
 EXENTO = "exento"
 IVA_5 = "iva5"
 IVA_19 = "iva19"
@@ -23,142 +11,155 @@ SUNTUARIOS = "suntuarios"
 BOLSAS_PLASTICAS = "bolsas"
 CIGARRILLOS_VAPEADORES = "vapeadores"
 
-CATEGORIAS_VALIDAS = {
-    EXENTO,
-    IVA_5,
-    IVA_19,
-    INC_RESTAURANTES,
-    LICORES,
-    SUNTUARIOS,
-    BOLSAS_PLASTICAS,
-    CIGARRILLOS_VAPEADORES,
+CATEGORIAS = {
+    EXENTO: "Canasta básica / Exento",
+    IVA_5: "Alimentos con IVA 5%",
+    IVA_19: "Bienes generales IVA 19%",
+    INC_RESTAURANTES: "Restaurantes (INC 8%)",
+    LICORES: "Licores",
+    SUNTUARIOS: "Bienes suntuarios",
+    BOLSAS_PLASTICAS: "Bolsas plásticas",
+    CIGARRILLOS_VAPEADORES: "Cigarrillos / Vapeadores",
 }
 
-# ------------------------------------------------------------------
-# Tarifas (issues #9 al #14 - reemplazo de números mágicos)
-# ------------------------------------------------------------------
-TARIFA_EXENTO = 0
-TARIFA_IVA_5 = 0.05
-TARIFA_IVA_19 = 0.19
-TARIFA_INC_RESTAURANTES = 0.08
-TARIFA_LICORES = 0.49
-TARIFA_SUNTUARIOS = 0.19
+TARIFAS_PORCENTUALES = {
+    EXENTO: 0,
+    IVA_5: 0.05,
+    IVA_19: 0.19,
+    INC_RESTAURANTES: 0.08,
+    LICORES: 0.49,
+    SUNTUARIOS: 0.19,
+}
 
 IMPUESTO_FIJO_BOLSA = 73
-
 TARIFA_VAPEADORES_AD_VALOREM = 0.30
 IMPUESTO_ESPECIFICO_VAPEADORES_POR_ML = 2000
 
 
-# ------------------------------------------------------------------
-# Excepciones del proyecto
-# ------------------------------------------------------------------
-class NegativePriceError(Exception):
-    """El precio unitario ingresado es negativo."""
-    pass
+class InvalidPriceError(Exception):
+    """El precio unitario es cero o negativo."""
 
 
 class NonNumericPriceError(Exception):
-    """El precio unitario ingresado no es un numero."""
-    pass
+    """El precio unitario no es numérico."""
 
 
 class NonNumericQuantityError(Exception):
-    """La cantidad ingresada no es un numero."""
-    pass
+    """La cantidad no es numérica."""
 
 
-class ZeroOrNegativeQuantityError(Exception):
-    """La cantidad ingresada es igual a cero."""
-    pass
+class ZeroQuantityError(Exception):
+    """La cantidad es igual a cero."""
 
 
 class NegativeQuantityError(Exception):
-    """La cantidad ingresada es negativa."""
-    pass
+    """La cantidad es negativa."""
 
 
 class InvalidCategoryError(Exception):
-    """La categoria ingresada no corresponde a ninguna de las 8 definidas."""
-    pass
+    """La categoría ingresada no es válida."""
 
 
-# ------------------------------------------------------------------
-# Funcion principal
-# Las validaciones de error siempre se hacen al comienzo de la funcion
-# ------------------------------------------------------------------
+def validar_categoria(categoria: str) -> None:
+    if categoria not in CATEGORIAS:
+        raise InvalidCategoryError(
+            f"La categoría '{categoria}' no es válida en validar_categoria(). "
+            f"Use una de estas categorías: {', '.join(sorted(CATEGORIAS))}."
+        )
+
+
+def validar_precio(precio_unitario: Numero) -> None:
+    if isinstance(precio_unitario, bool) or not isinstance(
+        precio_unitario, (int, float)
+    ):
+        raise NonNumericPriceError(
+            f"El precio {precio_unitario!r} no es válido en validar_precio() "
+            "porque no es numérico. Ingrese un número mayor que cero."
+        )
+
+    if precio_unitario <= 0:
+        raise InvalidPriceError(
+            f"El precio {precio_unitario} no es válido en validar_precio() "
+            "porque es cero o negativo. Ingrese un precio mayor que cero."
+        )
+
+
+def validar_cantidad(cantidad: Numero) -> None:
+    if isinstance(cantidad, bool) or not isinstance(cantidad, (int, float)):
+        raise NonNumericQuantityError(
+            f"La cantidad {cantidad!r} no es válida en validar_cantidad() "
+            "porque no es numérica. Ingrese una cantidad mayor que cero."
+        )
+
+    if cantidad == 0:
+        raise ZeroQuantityError(
+            "La cantidad 0 no es válida en validar_cantidad(). "
+            "Ingrese una cantidad mayor que cero."
+        )
+
+    if cantidad < 0:
+        raise NegativeQuantityError(
+            f"La cantidad {cantidad} no es válida en validar_cantidad() "
+            "porque es negativa. Ingrese una cantidad mayor que cero."
+        )
+
+
+def calcular_impuesto_porcentual(
+    valor_total: Numero,
+    tarifa: float,
+) -> Numero:
+    return valor_total * tarifa
+
+
+def calcular_impuesto_bolsas(cantidad: Numero) -> Numero:
+    return cantidad * IMPUESTO_FIJO_BOLSA
+
+
+def calcular_impuesto_vapeadores(
+    valor_total: Numero,
+    cantidad: Numero,
+) -> Numero:
+    return (
+        valor_total * TARIFA_VAPEADORES_AD_VALOREM
+        + cantidad * IMPUESTO_ESPECIFICO_VAPEADORES_POR_ML
+    )
+
+
+def calcular_impuesto_categoria(
+    categoria: str,
+    valor_total: Numero,
+    cantidad: Numero,
+) -> Numero:
+    if categoria in TARIFAS_PORCENTUALES:
+        return calcular_impuesto_porcentual(
+            valor_total=valor_total,
+            tarifa=TARIFAS_PORCENTUALES[categoria],
+        )
+
+    if categoria == BOLSAS_PLASTICAS:
+        return calcular_impuesto_bolsas(cantidad=cantidad)
+
+    return calcular_impuesto_vapeadores(
+        valor_total=valor_total,
+        cantidad=cantidad,
+    )
+
+
 def calcular_impuesto(
     categoria: str,
     precio_unitario: Numero,
     cantidad: Numero,
 ) -> tuple[Numero, Numero]:
-    """
-    Calcula el valor total de una compra y el impuesto que le
-    corresponde, segun la categoria del producto.
+    validar_categoria(categoria=categoria)
+    validar_precio(precio_unitario=precio_unitario)
+    validar_cantidad(cantidad=cantidad)
 
-    Parametros:
-        categoria: una de las 8 categorias definidas arriba
-        precio_unitario: precio de una unidad del producto
-                          (en cigarrillos/vapeadores es el precio por mililitro)
-        cantidad: cantidad comprada (en cigarrillos/vapeadores
-                  representa mililitros)
-
-    Retorna:
-        tuple (valor_total, impuesto)
-
-    Excepciones:
-        InvalidCategoryError        si la categoria no existe
-        NonNumericPriceError        si el precio no es numerico
-        NegativePriceError          si el precio es negativo
-        NonNumericQuantityError     si la cantidad no es numerica
-        ZeroOrNegativeQuantityError si la cantidad es igual a cero
-        NegativeQuantityError       si la cantidad es negativa
-    """
-    # --- Validacion de la categoria ---
-    if categoria not in CATEGORIAS_VALIDAS:
-        raise InvalidCategoryError("La categoría ingresada no es válida")
-
-    # --- Validacion del precio unitario ---
-    if isinstance(precio_unitario, bool) or not isinstance(precio_unitario, (int, float)):
-        raise NonNumericPriceError("El precio unitario debe ser numérico")
-
-    if precio_unitario < 0:
-        raise NegativePriceError("El precio unitario no puede ser negativo")
-
-    # --- Validacion de la cantidad ---
-    if isinstance(cantidad, bool) or not isinstance(cantidad, (int, float)):
-        raise NonNumericQuantityError("La cantidad debe ser numérica")
-
-    if cantidad == 0:
-        raise ZeroOrNegativeQuantityError("La cantidad debe ser mayor a 0")
-
-    if cantidad < 0:
-        raise NegativeQuantityError("La cantidad no puede ser negativa")
-
-    # --- Calculo del valor total pagado ---
     valor_total = precio_unitario * cantidad
 
-    # --- Calculo del impuesto segun la categoria ---
-    if categoria == EXENTO:
-        impuesto = valor_total * TARIFA_EXENTO
-    elif categoria == IVA_5:
-        impuesto = valor_total * TARIFA_IVA_5
-    elif categoria == IVA_19:
-        impuesto = valor_total * TARIFA_IVA_19
-    elif categoria == INC_RESTAURANTES:
-        impuesto = valor_total * TARIFA_INC_RESTAURANTES
-    elif categoria == LICORES:
-        impuesto = valor_total * TARIFA_LICORES
-    elif categoria == SUNTUARIOS:
-        impuesto = valor_total * TARIFA_SUNTUARIOS
-    elif categoria == BOLSAS_PLASTICAS:
-        # Impuesto fijo por bolsa, no depende del valor total
-        impuesto = cantidad * IMPUESTO_FIJO_BOLSA
-    elif categoria == CIGARRILLOS_VAPEADORES:
-        # Componente ad valorem + componente especifico por ml
-        impuesto = (
-            valor_total * TARIFA_VAPEADORES_AD_VALOREM
-            + cantidad * IMPUESTO_ESPECIFICO_VAPEADORES_POR_ML
-        )
+    impuesto = calcular_impuesto_categoria(
+        categoria=categoria,
+        valor_total=valor_total,
+        cantidad=cantidad,
+    )
 
     return valor_total, impuesto

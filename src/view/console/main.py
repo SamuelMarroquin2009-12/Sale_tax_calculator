@@ -1,70 +1,102 @@
-# main.py
-# Interfaz de consola (View) - Calculadora de Impuestos de Compra - Colombia
-# Autores: Samuel Marroquin, Isabella Ruiz Velasquez
+"""Interfaz de consola de la calculadora de impuestos."""
 
-import sys
-sys.path.append("src")
-
-# La Vista puede usar al Modelo (regla de acoplamiento del MVC)
-from model import impuestos_logic as ImpuestosLogic
+from src.model import impuestos_logic
 
 
-def leer_numero(mensaje):
-    """
-    Pide un dato por consola e intenta convertirlo a numero (float).
-    Si el usuario escribe texto que no se puede convertir, se devuelve
-    el texto tal cual, para que sea calcular_impuesto() quien dispare
-    la excepcion correspondiente (asi el programa nunca se cae).
-    """
+def leer_numero(mensaje: str) -> float:
+    """Lee un número desde la consola."""
+
     texto = input(mensaje).strip()
+
     try:
         return float(texto)
-    except ValueError:
-        return texto
+    except ValueError as error:
+        raise ValueError(
+            f"El valor '{texto}' no es numérico. Ingrese un número válido."
+        ) from error
 
 
-def mostrar_categorias():
+def mostrar_categorias() -> None:
+    """Muestra las categorías disponibles."""
+
     print("Categorías disponibles:")
-    print(f"  {ImpuestosLogic.EXENTO}              -> Canasta básica / Exento")
-    print(f"  {ImpuestosLogic.IVA_5}                -> Alimentos con IVA 5%")
-    print(f"  {ImpuestosLogic.IVA_19}               -> Bienes generales IVA 19%")
-    print(f"  {ImpuestosLogic.INC_RESTAURANTES}     -> Restaurantes (INC 8%)")
-    print(f"  {ImpuestosLogic.LICORES}              -> Licores")
-    print(f"  {ImpuestosLogic.SUNTUARIOS}           -> Bienes suntuarios")
-    print(f"  {ImpuestosLogic.BOLSAS_PLASTICAS}     -> Bolsas plásticas")
-    print(f"  {ImpuestosLogic.CIGARRILLOS_VAPEADORES} -> Cigarrillos / Vapeadores")
+
+    for codigo, descripcion in impuestos_logic.CATEGORIAS.items():
+        print(f"  {codigo:<20} -> {descripcion}")
 
 
-def main():
+def solicitar_datos() -> tuple[str, float, float]:
+    """Solicita los datos necesarios para calcular el impuesto."""
+
+    categoria = input("Ingrese la categoría: ").strip()
+
+    precio_unitario = leer_numero(
+        mensaje="Ingrese el precio unitario (COP): "
+    )
+
+    cantidad = leer_numero(
+        mensaje="Ingrese la cantidad: "
+    )
+
+    return categoria, precio_unitario, cantidad
+
+
+def mostrar_resultado(
+    valor_total: impuestos_logic.Numero,
+    impuesto: impuestos_logic.Numero,
+) -> None:
+    """Muestra el resultado del cálculo."""
+
+    print()
+    print(f"Valor Total: $ {valor_total:,.2f}")
+    print(f"Impuesto: $ {impuesto:,.2f}")
+
+
+def mostrar_error(error: Exception) -> None:
+    """Muestra un mensaje de error."""
+
+    print(f"ERROR: {error}")
+
+
+def ejecutar_calculo() -> None:
+    """Solicita los datos y ejecuta el cálculo del impuesto."""
+
+    categoria, precio_unitario, cantidad = solicitar_datos()
+
+    valor_total, impuesto = impuestos_logic.calcular_impuesto(
+        categoria=categoria,
+        precio_unitario=precio_unitario,
+        cantidad=cantidad,
+    )
+
+    mostrar_resultado(
+        valor_total=valor_total,
+        impuesto=impuesto,
+    )
+
+
+def main() -> None:
+    """Inicia la aplicación de consola."""
+
     print("=== Calculadora de Impuestos de Compra - Colombia ===")
     print()
+
     mostrar_categorias()
     print()
 
-    categoria = input("Ingrese la categoría: ").strip()
-    precio_unitario = leer_numero("Ingrese el precio unitario (COP): ")
-    cantidad = leer_numero("Ingrese la cantidad: ")
-
     try:
-        valor_total, impuesto = ImpuestosLogic.calcular_impuesto(
-            categoria, precio_unitario, cantidad
-        )
-        print()
-        print(f"Valor Total:  $ {valor_total:,.2f}")
-        print(f"Impuesto:     $ {impuesto:,.2f}")
+        ejecutar_calculo()
 
-    except ImpuestosLogic.InvalidCategoryError:
-        print("ERROR: La categoría ingresada no es válida")
-    except ImpuestosLogic.NonNumericPriceError:
-        print("ERROR: El precio unitario debe ser numérico")
-    except ImpuestosLogic.NegativePriceError:
-        print("ERROR: El precio unitario no puede ser negativo")
-    except ImpuestosLogic.NonNumericQuantityError:
-        print("ERROR: La cantidad debe ser numérica")
-    except ImpuestosLogic.ZeroOrNegativeQuantityError:
-        print("ERROR: La cantidad debe ser mayor a 0")
-    except ImpuestosLogic.NegativeQuantityError:
-        print("ERROR: La cantidad no puede ser negativa")
+    except (
+        ValueError,
+        impuestos_logic.InvalidCategoryError,
+        impuestos_logic.NonNumericPriceError,
+        impuestos_logic.InvalidPriceError,
+        impuestos_logic.NonNumericQuantityError,
+        impuestos_logic.ZeroQuantityError,
+        impuestos_logic.NegativeQuantityError,
+    ) as error:
+        mostrar_error(error=error)
 
 
 if __name__ == "__main__":
