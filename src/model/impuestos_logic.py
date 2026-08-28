@@ -116,34 +116,47 @@ def calcular_impuesto(
     """
     # --- Validacion de la categoria ---
     if categoria not in CATEGORIAS_VALIDAS:
-        raise InvalidCategoryError(f"En calcular_impuesto(), la categoría '{categoria}' no es válida "
-    "porque no pertenece a las categorías disponibles. "
-    f"Use una de estas categorías: {', '.join(sorted(CATEGORIAS_VALIDAS))}.")
+        raise InvalidCategoryError(
+            f"En calcular_impuesto(), la categoría '{categoria}' no es válida "
+            "porque no pertenece a las categorías disponibles. "
+            f"Use una de estas categorías: {', '.join(sorted(CATEGORIAS_VALIDAS))}."
+            )
 
     # --- Validacion del precio unitario ---
     if isinstance(precio_unitario, bool) or not isinstance(precio_unitario, (int, float)):
-        raise NonNumericPriceError(f"En calcular_impuesto(), el precio unitario {precio_unitario!r} "
-    "no es válido porque no es numérico. "
-    "Ingrese un número mayor que cero.")
+        raise NonNumericPriceError(
+            f"En calcular_impuesto(), el precio unitario {precio_unitario!r} "
+            "no es válido porque no es numérico. "
+            "Ingrese un número mayor que cero."
+            )
 
     if precio_unitario <= 0:
-        raise InvalidPriceError(f"En calcular_impuesto(), el precio unitario {precio_unitario} "
-    "no es válido porque es cero o negativo. "
-    "Ingrese un precio mayor que cero.")
+        raise InvalidPriceError(
+            f"En calcular_impuesto(), el precio unitario {precio_unitario} "
+            "no es válido porque es cero o negativo. "
+            "Ingrese un precio mayor que cero."
+            )
 
     # --- Validacion de la cantidad ---
     if isinstance(cantidad, bool) or not isinstance(cantidad, (int, float)):
-        raise NonNumericQuantityError(f"En calcular_impuesto(), la cantidad {cantidad!r} "
-    "no es válida porque no es numérica. "
-    "Ingrese una cantidad numérica mayor que cero.")
+        raise NonNumericQuantityError(
+            f"En calcular_impuesto(), la cantidad {cantidad!r} "
+            "no es válida porque no es numérica. "
+            "Ingrese una cantidad numérica mayor que cero."
+            )
 
     if cantidad == 0:
-        raise ZeroOrNegativeQuantityError("La cantidad debe ser mayor a 0")
+        raise ZeroOrNegativeQuantityError(
+            f"En calcular_impuesto(), la cantidad {cantidad} no es válida "
+            "porque es igual a cero. "
+            "Ingrese una cantidad mayor que cero."
+        )
 
     if cantidad < 0:
-        raise NegativeQuantityError(f"En calcular_impuesto(), la cantidad {cantidad} no es válida "
-    "porque es negativa. "
-    "Ingrese una cantidad mayor que cero.")
+        raise NegativeQuantityError(
+            f"En calcular_impuesto(), la cantidad {cantidad} no es válida "
+            "porque es negativa. "
+            "Ingrese una cantidad mayor que cero.")
 
     # --- Calculo del valor total pagado ---
     valor_total = precio_unitario * cantidad
