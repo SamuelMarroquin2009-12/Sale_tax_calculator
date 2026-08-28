@@ -7,9 +7,7 @@
 # el valor total de la compra junto con el impuesto que corresponde
 # segun su categoria.
 
-from typing import Union
-
-Numero = Union[int, float]
+Numero = int | float
 
 # ------------------------------------------------------------------
 # Categorias del proyecto (8 en total)
@@ -55,32 +53,26 @@ IMPUESTO_ESPECIFICO_VAPEADORES_POR_ML = 2000
 # ------------------------------------------------------------------
 class InvalidPriceError(Exception):
     """El precio unitario ingresado es cero o negativo."""
-    pass
 
 
 class NonNumericPriceError(Exception):
     """El precio unitario ingresado no es un numero."""
-    pass
 
 
 class NonNumericQuantityError(Exception):
     """La cantidad ingresada no es un numero."""
-    pass
 
 
-class ZeroOrNegativeQuantityError(Exception):
+class ZeroQuantityError(Exception):
     """La cantidad ingresada es igual a cero."""
-    pass
 
 
 class NegativeQuantityError(Exception):
     """La cantidad ingresada es negativa."""
-    pass
 
 
 class InvalidCategoryError(Exception):
     """La categoria ingresada no corresponde a ninguna de las 8 definidas."""
-    pass
 
 
 # ------------------------------------------------------------------
@@ -146,7 +138,7 @@ def calcular_impuesto(
             )
 
     if cantidad == 0:
-        raise ZeroOrNegativeQuantityError(
+        raise ZeroQuantityError(
             f"En calcular_impuesto(), la cantidad {cantidad} no es válida "
             "porque es igual a cero. "
             "Ingrese una cantidad mayor que cero."

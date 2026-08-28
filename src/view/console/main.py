@@ -25,8 +25,8 @@ def mostrar_categorias() -> None:
         print(f"  {codigo:<20} -> {descripcion}")
 
 
-def solicitar_compra() -> impuestos_logic.Compra:
-    """Solicita los datos necesarios para una compra."""
+def solicitar_datos() -> tuple[str, float, float]:
+    """Solicita los datos necesarios para calcular el impuesto."""
 
     categoria = input("Ingrese la categoría: ").strip()
 
@@ -38,11 +38,7 @@ def solicitar_compra() -> impuestos_logic.Compra:
         mensaje="Ingrese la cantidad: "
     )
 
-    return impuestos_logic.Compra(
-        categoria=categoria,
-        precio_unitario=precio_unitario,
-        cantidad=cantidad,
-    )
+    return categoria, precio_unitario, cantidad
 
 
 def mostrar_resultado(
@@ -52,23 +48,25 @@ def mostrar_resultado(
     """Muestra el resultado del cálculo."""
 
     print()
-    print(f"Valor Total:  $ {valor_total:,.2f}")
-    print(f"Impuesto:     $ {impuesto:,.2f}")
+    print(f"Valor Total: $ {valor_total:,.2f}")
+    print(f"Impuesto: $ {impuesto:,.2f}")
 
 
 def mostrar_error(error: Exception) -> None:
-    """Muestra un error al usuario."""
+    """Muestra un mensaje de error."""
 
     print(f"ERROR: {error}")
 
 
 def ejecutar_calculo() -> None:
-    """Coordina la captura de datos y el cálculo."""
+    """Solicita los datos y ejecuta el cálculo del impuesto."""
 
-    compra = solicitar_compra()
+    categoria, precio_unitario, cantidad = solicitar_datos()
 
     valor_total, impuesto = impuestos_logic.calcular_impuesto(
-        compra=compra
+        categoria=categoria,
+        precio_unitario=precio_unitario,
+        cantidad=cantidad,
     )
 
     mostrar_resultado(
@@ -88,6 +86,7 @@ def main() -> None:
 
     try:
         ejecutar_calculo()
+
     except (
         ValueError,
         impuestos_logic.InvalidCategoryError,
