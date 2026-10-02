@@ -6,6 +6,7 @@ Aplicación de consola desarrollada en Python que calcula el impuesto de una com
 
 - Samuel Marroquín
 - Isabella Ruiz Velasquez
+- Juan Sebastian Lopez Yarce
 
 ## Entradas
 
@@ -98,6 +99,8 @@ Sale_tax_calculator/
   - view/
     - console/
       - main.py
+    - gui/
+      - main.py  
   - controller/
     - __init__.py
 - tests/
@@ -117,6 +120,7 @@ Sale_tax_calculator/
 ## Requisitos
 
 - Python 3.10 o superior.
+- kivy.
 
 Para comprobar la versión instalada:
 
@@ -139,6 +143,68 @@ El programa solicitará:
 3. Cantidad.
 
 Después mostrará el valor total y el impuesto correspondiente.
+
+## Cómo ejecutar la interfaz gráfica (GUI)
+
+La aplicación cuenta con una interfaz gráfica desarrollada con **Kivy**.
+
+### 1. Crear el entorno virtual
+
+Desde la carpeta raíz del proyecto ejecutar:
+
+bash
+python -m venv .venv
+
+### 2. Activar el entorno virtual
+
+En Windows:
+
+.venv\Scripts\activate
+
+En Linux/macOS:
+
+source .venv/bin/activate
+### 3. Instalar las dependencias
+
+Actualizar pip:
+
+python -m pip install --upgrade pip
+
+Instalar las dependencias del proyecto:
+
+pip install -r requirements.txt
+
+Si no existe el archivo requirements.txt, instalar Kivy directamente:
+
+pip install kivy
+
+### 4. Ejecutar la interfaz gráfica
+
+Desde la raíz del proyecto ejecutar:
+
+python src/view/kivy/main.py
+
+### 5. Uso de la interfaz
+
+La aplicación permite:
+
+Seleccionar una categoría de compra mediante una lista desplegable.
+Ingresar el precio unitario.
+Ingresar la cantidad de unidades.
+Presionar el botón Calcular.
+Visualizar el valor de la compra, el impuesto y el total a pagar.
+Utilizar el botón Limpiar para comenzar un nuevo cálculo.
+
+Las categorías disponibles son:
+
+Canasta básica / Exento
+Alimentos con IVA 5%
+Bienes generales IVA 19%
+Restaurantes (INC 8%)
+Licores
+Bienes suntuarios
+Bolsas plásticas
+Cigarrillos / Vapeadores
 
 ## Cómo ejecutar las pruebas unitarias
 
