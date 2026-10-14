@@ -85,6 +85,7 @@ con los datos copiados de Render.
 > llénalo con tus datos (paso 3). Si prefieres no configurar nada, ejecuta `python main.py`:
 > el programa usa automáticamente una base SQLite local y todas las funciones siguen
 > disponibles. Las pruebas (`pytest -v`) no necesitan configuración.
+
 ## 4. Ejecutar el programa
 
 ```bash
