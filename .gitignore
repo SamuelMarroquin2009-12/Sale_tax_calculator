@@ -1,23 +1,16 @@
-# Archivos de configuración de PyCharm / IDE
-.idea/
-.vscode/
+# Datos privados: NUNCA subir
+secret_config.py
 
 # Python
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-
-# Entornos virtuales
+.pytest_cache/
 venv/
-env/
 .venv/
 
-# Archivos de sistema
-.DS_Store
-Thumbs.db
+# Base local de respaldo
+*.db
 
-# Archivos de cobertura / pruebas
-.pytest_cache/
-.coverage
-htmlcov/
+# Editores
+.idea/
+.vscode/

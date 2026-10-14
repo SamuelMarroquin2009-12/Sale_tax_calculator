@@ -1,177 +1,154 @@
-# Calculadora de Impuestos de Compra – Colombia
+# Sale_tax_calculator – Calculadora de impuestos de compra (Colombia)
 
-Aplicación de consola desarrollada en Python que calcula el impuesto de una compra según su categoría de producto, aplicando las tarifas definidas para el proyecto.
+Aplicación de **consola** en Python que calcula el impuesto de una compra según su categoría
+(IVA / INC vigentes en Colombia) y **guarda y consulta** los cálculos en una base de datos
+PostgreSQL usando el ORM **Peewee**.
 
-## Nombres de los creadores
+## Integrantes
 
 - Samuel Marroquín
 - Isabella Ruiz Velasquez
 
-## Entradas
+## Estructura
 
-El usuario ingresa tres datos:
-
-| Campo | Descripción | Ejemplo |
-|---|---|---|
-| Categoría | Categoría del producto que desea comprar | `iva19` |
-| Precio unitario (COP) | Precio de una unidad del producto | `50000` |
-| Cantidad | Cantidad de unidades compradas | `2` |
-
-Las categorías disponibles son:
-
-- Canasta básica / Exento.
-- Alimentos IVA 5%.
-- Bienes generales IVA 19%.
-- Restaurantes INC 8%.
-- Licores.
-- Bienes suntuarios.
-- Bolsas plásticas.
-- Cigarrillos / Vapeadores.
-
-## Proceso
-
-1. El usuario ingresa la categoría, el precio unitario y la cantidad.
-2. El sistema valida los datos ingresados.
-3. El precio unitario y la cantidad deben ser valores numéricos mayores que cero.
-4. Se calcula el valor total de la compra.
-5. Se calcula el impuesto correspondiente según la categoría.
-6. Se muestra el resultado al usuario.
-
-## Salidas
-
-En un caso exitoso, el programa muestra:
-
-- Valor total de la compra.
-- Impuesto calculado.
-
-Cuando los datos ingresados no son válidos, el programa lanza una excepción con información sobre el problema y la forma de corregirlo.
-
-## Casos de prueba
-
-Los casos originales del proyecto se encuentran en:
-
-`doc/Casos_de_Prueba_Impuestos.xlsx`
-
-El proyecto cuenta actualmente con 13 pruebas unitarias automatizadas que verifican tanto cálculos válidos como diferentes condiciones de error.
-
-## Arquitectura
-
-El proyecto utiliza una estructura basada en el patrón MVC (Modelo - Vista - Controlador).
-
-### Modelo
-
-Se encuentra en:
-
-`src/model/impuestos_logic.py`
-
-Contiene las reglas de negocio, validaciones, categorías y cálculos relacionados con los impuestos.
-
-### Vista
-
-Se encuentra en:
-
-`src/view/console/main.py`
-
-Es responsable de la interacción mediante consola, incluyendo la entrada de datos y presentación de resultados.
-
-### Controlador
-
-Se encuentra reservado en:
-
-`src/controller/`
-
-Actualmente no contiene lógica adicional porque el proyecto todavía no utiliza persistencia de datos.
-
-## Estructura del proyecto
-
+```
 Sale_tax_calculator/
-
-- doc/
-  - Casos_de_Prueba_Impuestos.xlsx
-  - Entrevista_Contador.md
-  - revision_automatizada.md
-  - revisiones_codigo.md
-- src/
-  - model/
-    - __init__.py
-    - impuestos_logic.py
-  - view/
-    - console/
-      - main.py
-  - controller/
-    - __init__.py
-- tests/
-  - __init__.py
-  - test_impuestos.py
-- .gitignore
-- LICENSE
-- README.md
-
-## Reglas de dependencia
-
-- El Modelo no depende de la Vista.
-- La Vista utiliza el Modelo para realizar los cálculos.
-- La lógica de negocio se mantiene separada de la interfaz de usuario.
-- El Controlador queda preparado para futuras funcionalidades.
+├── main.py                    # punto de entrada
+├── secret_config_sample.py    # plantilla de conexión (sin datos privados)
+├── requirements.txt
+├── pytest.ini
+├── src/
+│   ├── model/                 # database.py, models.py (ORM), calculadora.py, formato.py
+│   ├── controller/            # controller.py (crear/borrar tablas, insertar, buscar)
+│   └── view/                  # consola.py (interfaz de usuario)
+├── tests/                     # conftest.py (fixtures) y pruebas
+└── doc/                       # casos_de_prueba.md
+```
 
 ## Requisitos
 
-- Python 3.10 o superior.
+- Python 3.10 o superior
+- Una base de datos PostgreSQL (se usó la de [Render](https://dashboard.render.com))
 
-Para comprobar la versión instalada:
+## 1. Instalación
 
-`python --version`
+```bash
+git clone https://github.com/SamuelMarroquin2009-12/Sale_tax_calculator.git
+cd Sale_tax_calculator
+python -m venv venv
+```
 
-El funcionamiento principal del proyecto utiliza únicamente la biblioteca estándar de Python.
+Activar el entorno virtual:
 
-Ruff fue utilizado como herramienta de revisión automatizada durante el proceso de calidad del código.
+```bash
+# Windows (PowerShell)
+venv\Scripts\activate
+# Linux / macOS
+source venv/bin/activate
+```
 
-## Cómo ejecutar la interfaz de consola
+Instalar dependencias:
 
-Desde la raíz del proyecto ejecutar:
+```bash
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -r requirements.txt
+```
 
-`python -m src.view.console.main`
+## 2. Crear la base de datos (Render)
 
-El programa solicitará:
+1. Entra a <https://dashboard.render.com> → **New +** → **PostgreSQL**.
+2. Ponle un nombre, elige el plan gratuito y pulsa **Create Database**.
+3. Cuando termine de crearse, abre la base de datos y en la sección **Connections** copia los
+   datos **External**: Hostname (termina en `.render.com`), Port, Database, Username y Password.
 
-1. Categoría.
-2. Precio unitario.
-3. Cantidad.
+## 3. Configurar la conexión
 
-Después mostrará el valor total y el impuesto correspondiente.
+Los datos de conexión van en `secret_config.py`, que **no se sube a GitHub** (está en
+`.gitignore`). El repositorio solo incluye `secret_config_sample.py` con valores de ejemplo.
 
-## Cómo ejecutar las pruebas unitarias
+```bash
+# Windows
+copy secret_config_sample.py secret_config.py
+# Linux / macOS
+cp secret_config_sample.py secret_config.py
+```
 
-Desde la raíz del proyecto ejecutar:
+Abre `secret_config.py` y reemplaza `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASSWORD`
+con los datos copiados de Render.
 
-`python -m unittest tests.test_impuestos -v`
+> Si `secret_config.py` no existe o la conexión falla, el programa no se cae: avisa y usa una
+> base SQLite local (`~/.sale_tax_calculator/calculadora.db`) para que siga funcionando.
 
-Actualmente se ejecutan 13 pruebas unitarias.
+## 4. Ejecutar el programa
 
-El resultado esperado al finalizar correctamente es:
+```bash
+python main.py
+```
 
-`OK`
+Al iniciar, el programa conecta con la base de datos y crea las tablas si no existen. Menú:
 
-## Revisión automatizada
+| Opción | Acción |
+| ------ | ------ |
+| 1 | Crear las tablas (`CREATE TABLE`) y cargar las 8 categorías |
+| 2 | Borrar las tablas (`DROP TABLE`) |
+| 3 | Calcular y guardar un cálculo (`INSERT INTO`) |
+| 4 | Buscar cálculos por categoría o por id (`SELECT`) |
+| 5 | Calcular sin guardar |
+| 0 | Salir |
 
-Para revisar automáticamente el código se utilizó Ruff.
+Después de borrar las tablas (opción 2), usa la opción 1 para recrearlas.
 
-El comando utilizado fue:
+## 5. Ejecutar las pruebas
 
-`ruff check .`
+Las pruebas usan una base SQLite en memoria (un *fixture* crea y borra las tablas en cada
+prueba), así que **no necesitan** `secret_config.py` ni internet:
 
-Después de realizar las correcciones, el resultado final fue:
+```bash
+pytest -v
+```
 
-`All checks passed!`
+Resultado esperado: `49 passed`.
 
-La evidencia completa se encuentra en:
+## Modelo de datos (ORM)
 
-`doc/revision_automatizada.md`
+- **Categoria**: `id`, `clave` (única), `nombre`, `formula`.
+- **Calculo**: `id`, `categoria` (FK → Categoria), `valor`, `mililitros`, `impuesto`, `creado`.
 
-## Revisiones de código
+## Entradas y fórmulas
 
-La evidencia de la primera y segunda revisión del proyecto se encuentra en:
+| Categoría | Dato de entrada | Fórmula |
+| --------- | --------------- | ------- |
+| Canasta básica / Exento | Valor (COP) | `valor × 0` |
+| Alimentos con IVA 5 % | Valor (COP) | `valor × 0.05` |
+| Bienes generales IVA 19 % | Valor (COP) | `valor × 0.19` |
+| Restaurantes (INC 8 %) | Valor (COP) | `valor × 0.08` |
+| Licores | Valor (COP) | `valor × 0.49` |
+| Bienes suntuarios | Valor (COP) | `valor × 0.19` |
+| Bolsas plásticas | Cantidad (entero) | `cantidad × 73` |
+| Cigarrillos / Vapeadores | Valor (COP) + mililitros | `(valor × 0.30) + (ml × 2000)` |
 
-`doc/revisiones_codigo.md`
+Los números se escriben **sin separador de miles** (ej. `50000`, no `50.000`).
 
-Los problemas encontrados durante las revisiones también quedaron registrados mediante Issues de GitHub.
+## Salidas
+
+- **Caso exitoso:** el impuesto en pesos colombianos (ej. `$19.000,00`), y si se guardó, su id.
+- **Caso de error:** mensaje claro (valor negativo, no numérico, categoría inválida, id
+  inexistente, tablas sin crear). El programa no se cierra: vuelve al menú.
+
+## Casos de prueba
+
+Ver [`doc/casos_de_prueba.md`](doc/casos_de_prueba.md). Cada funcionalidad (crear/borrar tablas,
+insertar, buscar) tiene al menos un caso normal y uno de error.
+
+## Solución de problemas
+
+- *Error `'NoneType' object has no attribute 'endswith'` al instalar:* ejecuta
+  `python -m pip install --upgrade pip setuptools wheel` y vuelve a instalar.
+- *Dice "se usa la base local":* falta `secret_config.py` o los datos de Render son incorrectos.
+- *Error de conexión por hostname:* usa el hostname **External** (termina en `.render.com`).
+- *Las bases gratuitas de Render caducan:* si la tuya expira, crea otra y actualiza `secret_config.py`.
+
+## Notas
+
+Las tarifas de IVA e INC corresponden a la normativa tributaria colombiana vigente y pueden
+actualizarse en `src/model/calculadora.py`.

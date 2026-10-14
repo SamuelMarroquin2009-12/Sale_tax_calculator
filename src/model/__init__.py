@@ -1,1 +1,0 @@
-"""Paquete del modelo de la calculadora de impuestos."""
