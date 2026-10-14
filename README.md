@@ -80,6 +80,11 @@ con los datos copiados de Render.
 > Si `secret_config.py` no existe o la conexión falla, el programa no se cae: avisa y usa una
 > base SQLite local (`~/.sale_tax_calculator/calculadora.db`) para que siga funcionando.
 
+> **Nota para quien evalúe:** `secret_config.py` contiene credenciales privadas y por eso no
+> está en el repositorio. Para usar PostgreSQL crea tu propia base en Render (paso 2) y
+> llénalo con tus datos (paso 3). Si prefieres no configurar nada, ejecuta `python main.py`:
+> el programa usa automáticamente una base SQLite local y todas las funciones siguen
+> disponibles. Las pruebas (`pytest -v`) no necesitan configuración.
 ## 4. Ejecutar el programa
 
 ```bash
