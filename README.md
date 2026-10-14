@@ -8,11 +8,13 @@ PostgreSQL usando el ORM **Peewee**.
 
 - Samuel Marroquín
 - Isabella Ruiz Velasquez
+- Juan Sebastian Lopez Yarce
 
 ## Estructura
 
 ```
 Sale_tax_calculator/
+<<<<<<< HEAD
 ├── main.py                    # punto de entrada
 ├── secret_config_sample.py    # plantilla de conexión (sin datos privados)
 ├── requirements.txt
@@ -29,6 +31,43 @@ Sale_tax_calculator/
 
 - Python 3.10 o superior
 - Una base de datos PostgreSQL (se usó la de [Render](https://dashboard.render.com))
+=======
+
+- doc/
+  - Casos_de_Prueba_Impuestos.xlsx
+  - Entrevista_Contador.md
+  - revision_automatizada.md
+  - revisiones_codigo.md
+- src/
+  - model/
+    - __init__.py
+    - impuestos_logic.py
+  - view/
+    - console/
+      - main.py
+    - gui/
+      - main.py  
+  - controller/
+    - __init__.py
+- tests/
+  - __init__.py
+  - test_impuestos.py
+- .gitignore
+- LICENSE
+- README.md
+
+## Reglas de dependencia
+
+- El Modelo no depende de la Vista.
+- La Vista utiliza el Modelo para realizar los cálculos.
+- La lógica de negocio se mantiene separada de la interfaz de usuario.
+- El Controlador queda preparado para futuras funcionalidades.
+
+## Requisitos
+
+- Python 3.10 o superior.
+- kivy.
+>>>>>>> c9eccc12cd3efba61d3c9fce636e6855b0d51141
 
 ## 1. Instalación
 
@@ -66,12 +105,78 @@ python -m pip install -r requirements.txt
 Los datos de conexión van en `secret_config.py`, que **no se sube a GitHub** (está en
 `.gitignore`). El repositorio solo incluye `secret_config_sample.py` con valores de ejemplo.
 
+<<<<<<< HEAD
 ```bash
 # Windows
 copy secret_config_sample.py secret_config.py
 # Linux / macOS
 cp secret_config_sample.py secret_config.py
 ```
+=======
+## Cómo ejecutar la interfaz gráfica (GUI)
+
+La aplicación cuenta con una interfaz gráfica desarrollada con **Kivy**.
+
+### 1. Crear el entorno virtual
+
+Desde la carpeta raíz del proyecto ejecutar:
+
+bash
+python -m venv .venv
+
+### 2. Activar el entorno virtual
+
+En Windows:
+
+.venv\Scripts\activate
+
+En Linux/macOS:
+
+source .venv/bin/activate
+### 3. Instalar las dependencias
+
+Actualizar pip:
+
+python -m pip install --upgrade pip
+
+Instalar las dependencias del proyecto:
+
+pip install -r requirements.txt
+
+Si no existe el archivo requirements.txt, instalar Kivy directamente:
+
+pip install kivy
+
+### 4. Ejecutar la interfaz gráfica
+
+Desde la raíz del proyecto ejecutar:
+
+python src/view/kivy/main.py
+
+### 5. Uso de la interfaz
+
+La aplicación permite:
+
+Seleccionar una categoría de compra mediante una lista desplegable.
+Ingresar el precio unitario.
+Ingresar la cantidad de unidades.
+Presionar el botón Calcular.
+Visualizar el valor de la compra, el impuesto y el total a pagar.
+Utilizar el botón Limpiar para comenzar un nuevo cálculo.
+
+Las categorías disponibles son:
+
+Canasta básica / Exento
+Alimentos con IVA 5%
+Bienes generales IVA 19%
+Restaurantes (INC 8%)
+Licores
+Bienes suntuarios
+Bolsas plásticas
+Cigarrillos / Vapeadores
+
+## Cómo ejecutar las pruebas unitarias
+>>>>>>> c9eccc12cd3efba61d3c9fce636e6855b0d51141
 
 Abre `secret_config.py` y reemplaza `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASSWORD`
 con los datos copiados de Render.
@@ -129,6 +234,7 @@ Resultado esperado: `49 passed`.
 
 Los números se escriben **sin separador de miles** (ej. `50000`, no `50.000`).
 
+<<<<<<< HEAD
 ## Salidas
 
 - **Caso exitoso:** el impuesto en pesos colombianos (ej. `$19.000,00`), y si se guardó, su id.
@@ -152,3 +258,6 @@ insertar, buscar) tiene al menos un caso normal y uno de error.
 
 Las tarifas de IVA e INC corresponden a la normativa tributaria colombiana vigente y pueden
 actualizarse en `src/model/calculadora.py`.
+=======
+Los problemas encontrados durante las revisiones también quedaron registrados mediante Issues de GitHub.
+>>>>>>> c9eccc12cd3efba61d3c9fce636e6855b0d51141
