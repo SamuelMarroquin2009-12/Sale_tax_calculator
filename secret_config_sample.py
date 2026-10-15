@@ -1,18 +1,17 @@
-"""
-PLANTILLA DE CONFIGURACIÓN (esta SÍ se sube a GitHub).
+# INSTRUCCIONES DE USO
+#
+# 1. Copie este archivo en la misma carpeta (junto al README) y llame la copia: secret_config.py
+#       Windows:        copy secret_config_sample.py secret_config.py
+#       Linux / macOS:  cp secret_config_sample.py secret_config.py
+#
+# 2. Abra secret_config.py y reemplace los valores de abajo con los datos de SU base de datos
+#    PostgreSQL. En Render: su base de datos -> seccion "Connections" -> datos "External".
+#
+# 3. NUNCA suba secret_config.py a GitHub (ya esta en el .gitignore).
+#    Solo este archivo de muestra (secret_config_sample.py) va en el repositorio.
 
-Instrucciones de uso:
-  1. Copia este archivo y llama la copia  secret_config.py
-        Windows (cmd):   copy secret_config_sample.py secret_config.py
-        Linux / macOS:   cp secret_config_sample.py secret_config.py
-  2. Abre secret_config.py y reemplaza los valores de abajo con los datos
-     de TU base de datos PostgreSQL de Render
-     (Render -> tu base de datos -> pestaña "Connections" / "External Database URL").
-  3. NUNCA subas secret_config.py a GitHub (ya está en .gitignore).
-"""
-
-DB_HOST = "dpg-xxxxxxxxxxxxxxxxxxxx-a.oregon-postgres.render.com"
-DB_PORT = 5432
-DB_NAME = "nombre_de_tu_base_de_datos"
-DB_USER = "usuario_de_tu_base_de_datos"
-DB_PASSWORD = "contraseña_de_tu_base_de_datos"
+PGHOST = 'PONGA EL HOST DE LA BD AQUI'          # el Hostname EXTERNAL, termina en .render.com
+PGDATABASE = 'PONGA EL NOMBRE DE LA BD AQUI'
+PGUSER = 'PONGA EL USUARIO AQUI'
+PGPASSWORD = 'PONGA LA CONTRASEÑA AQUI'
+PGPORT = 5432

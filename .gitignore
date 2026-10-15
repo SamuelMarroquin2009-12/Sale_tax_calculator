@@ -1,16 +1,6 @@
-# Datos privados: NUNCA subir
+__pycache__
 secret_config.py
-
-# Python
-__pycache__/
-*.pyc
-.pytest_cache/
-venv/
 .venv/
-
-# Base local de respaldo
-*.db
-
-# Editores
-.idea/
-.vscode/
+venv/
+.vscode/*
+!.vscode/settings.json
