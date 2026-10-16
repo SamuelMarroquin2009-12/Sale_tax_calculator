@@ -27,7 +27,7 @@ python -m unittest discover -s test -p "*test*.py" -v
 | Buscar | Normal | `test_buscar_por_categoria` | 1 resultado, impuesto 39200.00 |
 | Buscar | Normal | `test_buscar_todos` | Trae los 2 guardados |
 | Buscar | Normal | `test_buscar_categoria_sin_resultados` | Lista vacía |
-| Buscar | Error | `test_buscar_error_id_inexistente` | Excepción "No existe" |
+| Buscar | Error | `test_buscar_error_id_inexistente` | `ErrorNoEncontrado`: "No existe un cálculo con id ..." |
 | Buscar | Error | `test_buscar_error_id_no_numerico` | Excepción "entero" |
 | Buscar | Error | `test_buscar_error_categoria_invalida` | Excepción "Categoría" |
 

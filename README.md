@@ -30,7 +30,7 @@ Sale_tax_calculator/
 ## Prerrequisitos
 
 - Python 3.10 o superior
-- Una base de datos PostgreSQL con sus datos de acceso (se usó la de [Render](https://dashboard.render.com))
+- Una base de datos PostgreSQL con sus datos de acceso: [neon.tech](https://neon.tech) (la que sugiere el curso) o [Render](https://dashboard.render.com) (la que usamos nosotros)
 
 ## 1. Instalación
 
@@ -56,12 +56,23 @@ python -m pip install --upgrade pip setuptools wheel
 python -m pip install -r requirements.txt
 ```
 
-## 2. Crear la base de datos (Render)
+## 2. Crear la base de datos
+
+Sirve cualquier PostgreSQL en la nube. Dos opciones gratuitas:
+
+**Opción A – neon.tech**
+
+1. Entre a <https://neon.tech>, cree una cuenta y un proyecto nuevo.
+2. En el *Dashboard* → **Connection Details** copie: Host, Database, User y Password (el puerto es 5432).
+
+**Opción B – Render**
 
 1. Entre a <https://dashboard.render.com> → **New +** → **PostgreSQL**.
 2. Póngale un nombre, elija el plan gratuito y pulse **Create Database**.
 3. Cuando termine de crearse, abra la base de datos y en la sección **Connections** copie los
    datos **External**: Hostname (termina en `.render.com`), Port, Database, Username y Password.
+
+> En Render use siempre el Hostname **External**; el *Internal* solo funciona dentro de Render.
 
 ## 3. Configurar la conexión
 
@@ -76,11 +87,12 @@ cp secret_config_sample.py secret_config.py
 ```
 
 Abra `secret_config.py` y reemplace `PGHOST`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` y `PGPORT`
-con los datos copiados de Render.
+con los datos copiados de su base de datos (paso 2).
 
 > **Nota para quien evalúe:** `secret_config.py` contiene credenciales privadas y por eso no
 > está en el repositorio. Cree su propia base de datos (paso 2) y llene `secret_config.py`
 > con sus datos (paso 3). Si algo falla, el programa muestra un mensaje que indica qué revisar.
+> Orden recomendado para probar todo: pasos 1 → 2 → 3 → `crear_tablas.py` → pruebas (paso 5).
 
 ## 4. Ejecutar el programa
 
@@ -105,7 +117,8 @@ pruebas: al correrlas se borran los cálculos guardados**.
 python -m unittest discover -s test -p "*test*.py" -v
 ```
 
-Resultado esperado: `Ran 39 tests ... OK`. En VS Code también se pueden correr desde el panel
+Resultado esperado: `Ran 39 tests ... OK`. Con una base en internet tardan cerca de un minuto,
+porque cada operación abre su propia conexión. En VS Code también se pueden correr desde el panel
 *Testing* (ya está configurado en `.vscode/settings.json`).
 
 ## Modelo de datos
@@ -158,7 +171,7 @@ insertar, buscar) tiene al menos un caso normal y uno de error.
 - *`La tabla 'calculos' no existe`:* ejecute `python src/view-console/crear_tablas.py`.
 - *Error `'NoneType' object has no attribute 'endswith'` al instalar:* ejecute
   `python -m pip install --upgrade pip setuptools wheel` y vuelva a instalar.
-- *Las bases gratuitas de Render caducan:* si la suya expira, cree otra y actualice `secret_config.py`.
+- *Las bases gratuitas de Render caducan a los 30 días:* si la suya expira, cree otra (o use neon.tech) y actualice `secret_config.py`.
 
 ## Notas
 

@@ -2,13 +2,14 @@
 # (usan los datos de conexion de secret_config.py)
 import unittest
 import sys
-sys.path.append("src")
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
 
 from decimal import Decimal
 from unittest.mock import patch
 
 from model.calculo import Calculo
-from controller.calculos_controller import CalculosController
+from controller.calculos_controller import CalculosController, ErrorNoEncontrado
 import secret_config  # el controlador ya dejo la carpeta del proyecto en sys.path
 
 
@@ -98,8 +99,9 @@ class TestCalculo(unittest.TestCase):
             Calculo.crear("bolsas", "2.5")
 
     def test_insertar_error_rechazado_por_la_base_de_datos(self):
-        # La tabla tiene check (valor >= 0): un calculo invalido armado a mano debe ser rechazado
-        invalido = Calculo(None, "general19", Decimal("-1"), Decimal("0"), Decimal("-1"))
+        # La tabla tiene check (valor >= 0): un calculo con valor negativo armado a mano
+        # (solo el valor es invalido) debe ser rechazado por la base de datos
+        invalido = Calculo(None, "general19", Decimal("-1"), Decimal("0"), Decimal("0"))
         with self.assertRaisesRegex(Exception, "Error de base de datos"):
             CalculosController.insertar(invalido)
         self.assertEqual(CalculosController.buscar_todos(), [])
@@ -127,7 +129,7 @@ class TestCalculo(unittest.TestCase):
 
     # ---------- Buscar: casos de error ----------
     def test_buscar_error_id_inexistente(self):
-        with self.assertRaisesRegex(ValueError, "No existe"):
+        with self.assertRaisesRegex(ErrorNoEncontrado, "No existe"):
             CalculosController.buscar_calculo(999999)
 
     def test_buscar_error_id_no_numerico(self):

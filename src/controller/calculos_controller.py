@@ -12,9 +12,14 @@ from model.calculo import Calculo
 from model.categoria import Categoria
 
 
+class ErrorNoEncontrado(Exception):
+    """ Excepcion que indica que una fila buscada no fue encontrada """
+    pass
+
+
 class CalculosController:
     """
-    Pertenece a la Capa de Controlador
+    Pertenece a la Capa de Acceso a Datos (Controller)
 
     Crea y borra la tabla calculos, e inserta y busca Calculos en la base de datos PostgreSQL
     """
@@ -59,7 +64,7 @@ class CalculosController:
                from calculos where id_calculo = %s""",
             (id_calculo,), traer="uno")
         if fila is None:
-            raise ValueError(f"No existe un cálculo con id {id_calculo}")
+            raise ErrorNoEncontrado(f"No existe un cálculo con id {id_calculo}")
         return CalculosController._a_calculo(fila)
 
     @staticmethod
