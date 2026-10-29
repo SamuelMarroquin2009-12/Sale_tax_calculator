@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% from "iconos.html" import icono %}
+{% block titulo %}Tablas de la base de datos · Calculadora de Impuestos de Colombia{% endblock %}
+{% block hero %}
+<section class="encabezado">
+  <div class="encabezado-contenido">
+    <span class="circulo grande">{{ icono("base_datos", 30) }}</span>
+    <div>
+      <h1>Tablas de la base de datos</h1>
+      <p>Aquí preparas la tabla donde se guardan tus cálculos. No es obligatorio: si calculas primero, la tabla se crea sola.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block contenido %}
+<section class="tarjeta estado-tabla">
+  {% if estado.existe %}<span class="punto ok"></span><div><strong>La tabla <code>calculos</code> está creada</strong><span>{{ estado.total }} cálculo(s) guardado(s)</span></div>
+  {% elif estado.existe is none %}<span class="punto error"></span><div><strong>No se pudo consultar la base de datos</strong><span>{{ estado.mensaje }}</span></div>
+  {% else %}<span class="punto aviso-punto"></span><div><strong>La tabla <code>calculos</code> todavía no existe</strong><span>Créala aquí o guarda tu primer cálculo.</span></div>{% endif %}
+</section>
+<div class="dos-columnas">
+  <section class="tarjeta">
+    <span class="circulo">{{ icono("base_datos", 22) }}</span>
+    <h2>Crear tablas</h2>
+    <p>Crea la tabla <code>calculos</code>. Si ya existe, no pasa nada: no se pierde ningún dato.</p>
+    <form method="post" class="form-simple"><input type="hidden" name="accion" value="crear">
+      <button type="submit">{{ icono("check", 18) }}Crear tablas</button></form>
+  </section>
+  <section class="tarjeta zona-peligro">
+    <span class="circulo peligro">{{ icono("base_datos", 22) }}</span>
+    <h2>Borrar tablas</h2>
+    <p>Elimina la tabla <code>calculos</code> y <strong>todos los cálculos guardados</strong>. No se puede deshacer.</p>
+    <form method="post" class="form-simple"><input type="hidden" name="accion" value="borrar">
+      <label for="confirmacion">Escribe {{ palabra }} para confirmar</label>
+      <input id="confirmacion" name="confirmacion" autocomplete="off">
+      <button type="submit" class="peligro">Borrar tablas</button></form>
+  </section>
+</div>
+<section class="tarjeta">
+  <h2>¿Qué se guarda en cada cálculo?</h2>
+  <dl class="columnas">
+    <div><dt>id_calculo</dt><dd>Número del cálculo (se asigna solo)</dd></div>
+    <div><dt>categoria</dt><dd>Tipo de impuesto elegido</dd></div>
+    <div><dt>valor</dt><dd>Valor de la compra o cantidad de bolsas</dd></div>
+    <div><dt>mililitros</dt><dd>Líquido del vapeador (0 si no aplica)</dd></div>
+    <div><dt>impuesto</dt><dd>Impuesto calculado</dd></div>
+    <div><dt>fecha</dt><dd>Cuándo se guardó</dd></div>
+  </dl>
+</section>
+{% endblock %}

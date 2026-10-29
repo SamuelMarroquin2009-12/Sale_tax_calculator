@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "iconos.html" import icono %}
+{% block hero %}
+<section class="hero">
+  <div class="hero-contenido">
+    <div class="hero-texto">
+      <span class="etiqueta">{{ icono("porcentaje", 14) }}IVA · INC · Consumo</span>
+      <h1>Calcula los impuestos de tus compras en Colombia, <span class="resalte">fácil y claro</span></h1>
+      <p>Calcula cuánto impuesto pagas por una compra según el tipo de producto y guarda tus cálculos. Si no sabes qué significa cada impuesto, te lo explicamos fácil.</p>
+      <div class="botones">
+        <a class="boton" href="{{ url_for('calculos.insertar_calculo') }}">Comenzar a calcular{{ icono("flecha", 18) }}</a>
+        <a class="boton secundario" href="{{ url_for('guia.guia_impuestos') }}">{{ icono("libro", 18) }}Conocer más sobre los impuestos</a>
+      </div>
+    </div>
+    <div class="tarjeta ejemplo-inicio">
+      <span class="etiqueta">Así se ve un resultado</span>
+      <dl class="desglose">
+        <div><dt>Compra de bienes generales</dt><dd>{{ ejemplo_valor|cop }}</dd></div>
+        <div><dt>Tarifa aplicada</dt><dd>{{ ejemplo_tarifa }}</dd></div>
+        <div class="destacado"><dt>Impuesto</dt><dd>{{ ejemplo_impuesto|cop }}</dd></div>
+        <div class="total"><dt>Total con impuesto</dt><dd>{{ ejemplo_total|cop }}</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+<section class="franja">
+  <ul class="ventajas">
+    <li><span class="circulo">{{ icono("libro", 20) }}</span><div><strong>Explicado fácil</strong><span>Guía para entender cada impuesto</span></div></li>
+    <li><span class="circulo">{{ icono("escudo", 20) }}</span><div><strong>Cálculos precisos</strong><span>Con las tarifas del proyecto</span></div></li>
+    <li><span class="circulo">{{ icono("base_datos", 20) }}</span><div><strong>Historial guardado</strong><span>Busca tus cálculos cuando quieras</span></div></li>
+  </ul>
+</section>
+{% endblock %}
+{% block contenido %}
+<h2 class="titulo-seccion">¿Qué quieres hacer?</h2>
+<ul class="tarjetas">
+  <li><a href="{{ url_for('guia.guia_impuestos') }}"><span class="circulo">{{ icono("libro", 24) }}</span><strong>Guía de impuestos</strong><span>Qué significa cada impuesto, con ejemplos.</span></a></li>
+  <li><a href="{{ url_for('calculos.insertar_calculo') }}"><span class="circulo">{{ icono("calculadora", 24) }}</span><strong>Calcular y guardar</strong><span>Calcula el impuesto de una compra y guárdalo.</span></a></li>
+  <li><a href="{{ url_for('tablas.administrar_tablas') }}"><span class="circulo">{{ icono("base_datos", 24) }}</span><strong>Base de datos</strong><span>Crea o borra la tabla donde se guardan los cálculos.</span></a></li>
+  <li><a href="{{ url_for('calculos.buscar_calculos') }}"><span class="circulo">{{ icono("buscar", 24) }}</span><strong>Buscar cálculos</strong><span>Consulta por id, por categoría o mira todos los guardados.</span></a></li>
+</ul>
+{% endblock %}

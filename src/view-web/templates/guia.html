@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% from "iconos.html" import icono %}
+{% block titulo %}Guía de impuestos · Calculadora de Impuestos de Colombia{% endblock %}
+{% block contenido %}
+<p class="migas"><a href="{{ url_for('inicio.menu_inicio') }}">Inicio</a> / Guía de impuestos</p>
+{% include "_guia.html" %}
+{% endblock %}

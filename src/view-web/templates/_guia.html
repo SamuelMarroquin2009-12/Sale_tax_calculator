@@ -1,0 +1,29 @@
+{# Guia de impuestos en lenguaje sencillo: se muestra en la pagina Guia #}
+{% from "iconos.html" import icono %}
+<section id="guia" class="guia">
+  <h1>Guía de impuestos en Colombia</h1>
+  <p class="intro">Si casi no sabes de impuestos, empieza aquí. Esto es lo básico para entender lo que ves en una factura.</p>
+  <div class="conceptos">
+    {% for titulo, texto in conceptos %}
+    <article><h3>{{ titulo }}</h3><p>{{ texto }}</p></article>
+    {% endfor %}
+  </div>
+  <h3 class="subtitulo">Los impuestos que calcula la aplicación</h3>
+  <div class="impuestos">
+    {% for item in impuestos %}
+    {% set c = item.categoria %}{% set i = item.info %}
+    <article class="impuesto" id="{{ c.clave }}">
+      <header>
+        <span class="circulo">{{ icono(i.icono, 26) }}</span>
+        <div class="titulo-impuesto"><h3>{{ c.nombre }}</h3><span class="insignia {{ i.tipo|lower }}">{{ i.tipo }}</span></div>
+        <span class="tarifa">{{ i.tarifa }}</span>
+      </header>
+      <p class="resumen">{{ i.resumen }}</p>
+      <p>{{ i.que_es }}</p>
+      <p class="como"><strong>¿Cómo se calcula?</strong> {{ i.como }}</p>
+      <p class="ejemplo">Ejemplo: {{ i.ejemplo_texto or (i.ejemplo_valor|cop) }} → impuesto <strong>{{ item.ejemplo_impuesto|cop }}</strong></p>
+    </article>
+    {% endfor %}
+  </div>
+  <p class="boton-centro"><a class="boton" href="{{ url_for('calculos.insertar_calculo') }}">{{ icono("calculadora", 18) }}Probar con mi compra</a></p>
+</section>

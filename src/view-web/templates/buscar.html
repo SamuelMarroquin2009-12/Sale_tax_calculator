@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "iconos.html" import icono %}
+{% block titulo %}Buscar cálculos · Calculadora de Impuestos de Colombia{% endblock %}
+{% block hero %}
+<section class="encabezado">
+  <div class="encabezado-contenido">
+    <span class="circulo grande">{{ icono("buscar", 30) }}</span>
+    <div>
+      <h1>Busca tus cálculos</h1>
+      <p>Consulta el historial de impuestos que has guardado: por número de cálculo, por tipo de impuesto o todos a la vez.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block contenido %}
+<div class="busquedas">
+  <form method="get" class="busqueda"><input type="hidden" name="tipo" value="id">
+    <span class="circulo">{{ icono("buscar", 22) }}</span><h2>Por número</h2>
+    <label for="id_calculo">Id del cálculo</label>
+    <input id="id_calculo" name="id_calculo" value="{{ id_calculo }}" inputmode="numeric" placeholder="Ej. 1">
+    <button type="submit">Buscar</button></form>
+  <form method="get" class="busqueda"><input type="hidden" name="tipo" value="categoria">
+    <span class="circulo">{{ icono("libro", 22) }}</span><h2>Por impuesto</h2>
+    <label for="categoria">Tipo de impuesto</label>
+    <select id="categoria" name="categoria">
+      {% for cat in categorias %}<option value="{{ cat.clave }}" {{ 'selected' if cat.clave == elegida }}>{{ cat.nombre }}</option>{% endfor %}
+    </select>
+    <button type="submit">Buscar</button></form>
+  <form method="get" class="busqueda"><input type="hidden" name="tipo" value="todos">
+    <span class="circulo">{{ icono("base_datos", 22) }}</span><h2>Todos</h2>
+    <p class="nota">Muestra todo el historial guardado, en el orden en que se fue guardando.</p>
+    <button type="submit">Ver todos</button></form>
+</div>
+
+{% if error %}<p class="aviso error">{{ error }}</p>{% endif %}
+{% if resultados is none and not error %}
+<p class="vacio">Elige arriba cómo quieres buscar y aquí verás los resultados.</p>
+{% elif resultados is not none and not error %}
+  {% if resultados %}
+  <div class="resumen-busqueda">
+    <span class="chip">{{ resultados|length }} cálculo(s)</span>
+    <span class="chip fuerte">Impuesto total: {{ total|cop }}</span>
+  </div>
+  <table>
+    <tr><th>Id</th><th>Impuesto</th><th>Valor</th><th>Impuesto calculado</th><th>Fecha</th></tr>
+    {% for c in resultados %}
+    <tr>
+      <td>{{ c.id_calculo }}</td>
+      <td><span class="celda-icono">{{ icono(guia[c.categoria].icono, 18) }}{{ c.categoria|nombre_categoria }}</span></td>
+      <td>{{ (c.valor|int ~ " bolsas") if c.categoria == "bolsas" else c.valor|cop }}</td>
+      <td><strong>{{ c.impuesto|cop }}</strong></td>
+      <td>{{ c.fecha.strftime('%Y-%m-%d %H:%M') }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <div class="vacio">{{ icono("buscar", 40) }}<p>No se encontraron cálculos.</p>
+    <a class="boton" href="{{ url_for('calculos.insertar_calculo') }}">{{ icono("calculadora", 18) }}Ir a calcular</a></div>
+  {% endif %}
+{% endif %}
+{% endblock %}
