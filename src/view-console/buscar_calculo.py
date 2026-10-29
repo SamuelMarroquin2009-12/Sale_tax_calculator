@@ -3,6 +3,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from model.categoria import Categoria
+from model.excepciones import ErrorValorInvalido
 from model.formato import formatear_cop
 from controller.calculos_controller import CalculosController
 
@@ -35,12 +36,12 @@ try:
             print(f"  {numero}. {categoria.nombre}")
         eleccion = input("Elija la categoría (número): ").strip()
         if not eleccion.isdigit() or not 1 <= int(eleccion) <= len(categorias):
-            raise ValueError("Opción de categoría inválida")
+            raise ErrorValorInvalido("Opción de categoría inválida")
         mostrar(CalculosController.buscar_por_categoria(categorias[int(eleccion) - 1].clave))
     elif opcion == "3":
         mostrar(CalculosController.buscar_todos())
     else:
-        raise ValueError("Opción inválida")
+        raise ErrorValorInvalido("Opción inválida")
 except Exception as err:
     print("Error:")
     print(str(err))

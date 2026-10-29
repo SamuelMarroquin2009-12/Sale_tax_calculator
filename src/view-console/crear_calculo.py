@@ -3,6 +3,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from model.categoria import Categoria
+from model.excepciones import ErrorValorInvalido
 from model.calculo import Calculo
 from model.formato import formatear_cop
 from controller.calculos_controller import CalculosController
@@ -16,7 +17,7 @@ try:
 
     opcion = input("Elija la categoría (número): ").strip()
     if not opcion.isdigit() or not 1 <= int(opcion) <= len(categorias):
-        raise ValueError("Opción de categoría inválida")
+        raise ErrorValorInvalido("Opción de categoría inválida")
     categoria = categorias[int(opcion) - 1]
 
     # Pedir al usuario los datos para llenar el calculo

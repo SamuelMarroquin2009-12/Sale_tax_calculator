@@ -8,6 +8,7 @@ from decimal import Decimal
 
 from model.categoria import Categoria
 from model.formato import formatear_cop
+from model.excepciones import ErrorCategoriaDesconocida, ErrorValorInvalido
 
 
 class TestCategoria(unittest.TestCase):
@@ -48,35 +49,35 @@ class TestCategoria(unittest.TestCase):
 
     # ---------- Casos de error ----------
     def test_error_valor_vacio(self):
-        with self.assertRaisesRegex(ValueError, "número"):
+        with self.assertRaisesRegex(ErrorValorInvalido, "número"):
             self.calcular("general19", "")
 
     def test_error_valor_texto(self):
-        with self.assertRaisesRegex(ValueError, "número"):
+        with self.assertRaisesRegex(ErrorValorInvalido, "número"):
             self.calcular("general19", "abc")
 
     def test_error_valor_negativo(self):
-        with self.assertRaisesRegex(ValueError, "negativo"):
+        with self.assertRaisesRegex(ErrorValorInvalido, "negativo"):
             self.calcular("general19", "-5")
 
     def test_error_valor_infinito(self):
-        with self.assertRaisesRegex(ValueError, "válido"):
+        with self.assertRaisesRegex(ErrorValorInvalido, "válido"):
             self.calcular("general19", "inf")
 
     def test_error_bolsas_decimales(self):
-        with self.assertRaisesRegex(ValueError, "entero"):
+        with self.assertRaisesRegex(ErrorValorInvalido, "entero"):
             self.calcular("bolsas", "1.5")
 
     def test_error_mililitros_vacios(self):
-        with self.assertRaisesRegex(ValueError, "Mililitros"):
+        with self.assertRaisesRegex(ErrorValorInvalido, "Mililitros"):
             self.calcular("cigarrillos", "15000", "")
 
     def test_error_mililitros_negativos(self):
-        with self.assertRaisesRegex(ValueError, "negativo"):
+        with self.assertRaisesRegex(ErrorValorInvalido, "negativo"):
             self.calcular("cigarrillos", "15000", "-3")
 
     def test_error_categoria_invalida(self):
-        with self.assertRaisesRegex(ValueError, "Categoría"):
+        with self.assertRaisesRegex(ErrorCategoriaDesconocida, "Categoría"):
             Categoria.obtener("juguetes")
 
     # ---------- Formato ----------
