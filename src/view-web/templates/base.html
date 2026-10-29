@@ -1,0 +1,44 @@
+{% from "iconos.html" import icono %}
+{# Enlace de la barra: se resalta cuando es la pagina donde esta el usuario #}
+{% macro enlace(endpoint, nombre_icono, texto) -%}
+<a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} class="activo" aria-current="page"{% endif %}>{{ icono(nombre_icono, 18) }}<span>{{ texto }}</span></a>
+{%- endmacro %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Calculadora de Impuestos de Colombia{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+  <script src="{{ url_for('static', filename='tema.js') }}"></script>
+</head>
+<body>
+  <header class="barra">
+    <a class="marca" href="{{ url_for('inicio.menu_inicio') }}">
+      <span class="logo">{{ icono("calculadora", 22) }}</span>
+      <span class="marca-texto"><strong>Calculadora de Impuestos</strong><small>de Colombia</small></span>
+    </a>
+    <nav>
+      {{ enlace("inicio.menu_inicio", "inicio", "Inicio") }}
+      {{ enlace("guia.guia_impuestos", "libro", "Guía") }}
+      {{ enlace("calculos.insertar_calculo", "calculadora", "Calcular") }}
+      {{ enlace("tablas.administrar_tablas", "base_datos", "Tablas") }}
+      {{ enlace("calculos.buscar_calculos", "buscar", "Buscar") }}
+    </nav>
+    <button type="button" id="boton-tema" class="tema" aria-label="Cambiar entre modo claro y oscuro">
+      <span class="ico-luna">{{ icono("luna", 18) }}</span><span class="ico-sol">{{ icono("sol", 18) }}</span>
+    </button>
+  </header>
+  {% block hero %}{% endblock %}
+  <main>
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+      {% for categoria, mensaje in mensajes %}<p class="aviso {{ categoria }}">{{ mensaje }}</p>{% endfor %}
+    {% endwith %}
+    {% block contenido %}{% endblock %}
+  </main>
+  <footer class="pie">Proyecto académico · Las tarifas son las que usa esta calculadora y pueden cambiar por ley.</footer>
+</body>
+</html>

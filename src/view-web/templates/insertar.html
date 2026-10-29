@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% from "iconos.html" import icono %}
+{% block titulo %}Calcular y guardar · Calculadora de Impuestos de Colombia{% endblock %}
+{% block hero %}
+<section class="encabezado">
+  <div class="encabezado-contenido">
+    <span class="circulo grande">{{ icono("calculadora", 30) }}</span>
+    <div>
+      <h1>Calcula tu impuesto</h1>
+      <p>Elige el tipo de producto, escribe el valor y te mostramos el desglose. El cálculo queda guardado en tu historial.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block contenido %}
+<div class="dos-columnas calcular">
+  <section class="tarjeta">
+    {% if error %}<p class="aviso error">{{ error }}</p>{% endif %}
+    {% include "_form_calculo.html" %}
+  </section>
+  <section class="tarjeta panel-resultado">
+    <p class="paso-titulo"><b>3</b> Mira el resultado</p>
+    {% if calculo %}
+    {% if tabla_creada %}<p class="aviso ok">Era tu primer cálculo, así que creamos la tabla de la base de datos automáticamente.</p>{% endif %}
+    <div class="resultado-ok">{{ icono("check", 30) }}<div><strong>Cálculo completado</strong><span>Guardado con el id {{ calculo.id_calculo }}</span></div></div>
+    <div class="cifra">
+      <span>Impuesto a pagar</span>
+      <strong>{{ calculo.impuesto|cop }}</strong>
+    </div>
+    <dl class="desglose">
+      <div><dt>Categoría</dt><dd>{{ categoria.nombre }}</dd></div>
+      <div><dt>{{ "Cantidad" if calculo.categoria == "bolsas" else "Valor base" }}</dt><dd>{{ (calculo.valor|int ~ " bolsas") if calculo.categoria == "bolsas" else calculo.valor|cop }}</dd></div>
+      {% if calculo.mililitros and calculo.mililitros > 0 %}<div><dt>Mililitros</dt><dd>{{ calculo.mililitros|int }} ml</dd></div>{% endif %}
+      <div><dt>Tarifa aplicada</dt><dd>{{ tarifa }}</dd></div>
+      {% if total is not none %}<div class="total"><dt>Total con impuesto</dt><dd>{{ total|cop }}</dd></div>{% endif %}
+    </dl>
+    <div class="acciones">
+      <a class="boton secundario" href="{{ url_for('calculos.buscar_calculos', tipo='id', id_calculo=calculo.id_calculo) }}">{{ icono("buscar", 18) }}Ver en el historial</a>
+      <a class="boton secundario" href="{{ url_for('calculos.insertar_calculo') }}">{{ icono("calculadora", 18) }}Calcular otro</a>
+    </div>
+    {% else %}
+    <div class="vacio">
+      {{ icono("calculadora", 44) }}
+      <p>Aquí aparecerá tu resultado: el impuesto a pagar, la tarifa aplicada y el total.</p>
+      <ul class="mini-pasos"><li><b>1</b> Elige el tipo</li><li><b>2</b> Escribe el valor</li><li><b>3</b> Calcula y guarda</li></ul>
+    </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

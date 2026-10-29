@@ -1,18 +1,20 @@
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
+from model.excepciones import ErrorCategoriaDesconocida, ErrorValorInvalido
+
 
 def a_decimal(dato, nombre="Valor"):
-    """ Convierte la entrada a Decimal. Dispara una excepcion con mensaje claro si no es valida """
+    """ Convierte la entrada a Decimal. Dispara ErrorValorInvalido con mensaje claro si no es valida """
     if isinstance(dato, bool) or dato is None:
-        raise ValueError(f"{nombre}: debe ser un número")
+        raise ErrorValorInvalido(f"{nombre}: debe ser un número")
     try:
         numero = Decimal(str(dato).strip().replace(",", "."))
     except InvalidOperation:
-        raise ValueError(f"{nombre}: debe ser un número (ej. 50000)") from None
+        raise ErrorValorInvalido(f"{nombre}: debe ser un número (ej. 50000)") from None
     if not numero.is_finite():
-        raise ValueError(f"{nombre}: debe ser un número válido")
+        raise ErrorValorInvalido(f"{nombre}: debe ser un número válido")
     if numero < 0:
-        raise ValueError(f"{nombre}: no puede ser negativo")
+        raise ErrorValorInvalido(f"{nombre}: no puede ser negativo")
     return numero
 
 
@@ -44,7 +46,7 @@ class Categoria:
 
         if self.clave == "bolsas":
             if valor != valor.to_integral_value():
-                raise ValueError("Cantidad: debe ser un número entero de bolsas")
+                raise ErrorValorInvalido("Cantidad: debe ser un número entero de bolsas")
             impuesto = valor * Decimal("73")
         elif self.clave == "cigarrillos":
             ml = a_decimal(mililitros, "Mililitros")
@@ -61,9 +63,9 @@ class Categoria:
 
     @staticmethod
     def obtener(clave: str):
-        """ Busca una categoria por su clave. Dispara una excepcion si no existe """
+        """ Busca una categoria por su clave. Dispara ErrorCategoriaDesconocida si no existe """
         if clave not in CATEGORIAS:
-            raise ValueError(f"Categoría desconocida: {clave!r}")
+            raise ErrorCategoriaDesconocida(f"Categoría desconocida: {clave!r}")
         return CATEGORIAS[clave]
 
 

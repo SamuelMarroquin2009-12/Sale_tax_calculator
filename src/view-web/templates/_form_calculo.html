@@ -1,0 +1,27 @@
+{# Formulario de la calculadora: tipo de impuesto (tarjetas con icono), valor y, si aplica, mililitros #}
+{% from "iconos.html" import icono %}
+<form method="post" action="{{ url_for('calculos.insertar_calculo') }}" class="form-calculo" id="form-calculo">
+  <p class="paso-titulo"><b>1</b> Elige el tipo de producto o impuesto</p>
+  <div class="selector">
+    {% for item in opciones %}{% set c = item.categoria %}{% set i = item.info %}
+    <label class="opcion">
+      <input type="radio" name="categoria" value="{{ c.clave }}" required {{ 'checked' if c.clave == elegida }}
+             data-ml="{{ 'si' if c.pide_mililitros() else 'no' }}" data-etiqueta="{{ c.etiqueta_valor() }}"
+             data-resumen="{{ i.resumen }}" data-guia="{{ url_for('guia.guia_impuestos') }}#{{ c.clave }}">
+      <span class="opcion-caja">{{ icono(i.icono, 24) }}<strong>{{ c.nombre }}</strong><small>{{ i.tarifa }}</small></span>
+    </label>
+    {% endfor %}
+  </div>
+  <p class="ayuda-categoria" id="ayuda-categoria" hidden></p>
+
+  <p class="paso-titulo"><b>2</b> Escribe el valor</p>
+  <label for="valor" id="etiqueta-valor" class="etiqueta-campo">Valor de la compra (COP)</label>
+  <div class="campo-moneda"><span id="signo">$</span><input name="valor" id="valor" value="{{ valor }}" inputmode="decimal" placeholder="Ej. 50000" required></div>
+  <div id="campo-ml">
+    <label for="mililitros" class="etiqueta-campo">Mililitros de líquido (solo vapeadores)</label>
+    <input name="mililitros" id="mililitros" value="{{ mililitros }}" inputmode="decimal" placeholder="Ej. 10">
+  </div>
+  <p class="nota">Escribe los números sin separador de miles (50000, no 50.000).</p>
+  <button type="submit">{{ icono("calculadora", 18) }}Calcular y guardar</button>
+</form>
+<script src="{{ url_for('static', filename='calculadora.js') }}"></script>

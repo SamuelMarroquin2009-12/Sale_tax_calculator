@@ -21,7 +21,7 @@ class Calculo:
     def crear(categoria: str, valor, mililitros=0):
         """
         Valida los datos, calcula el impuesto y retorna un Calculo listo para guardar.
-        Dispara una excepcion con un mensaje claro si algun dato es invalido
+        Dispara una excepcion propia (ErrorValorInvalido o ErrorCategoriaDesconocida) si algun dato es invalido
         """
         cat = Categoria.obtener(categoria)
         valor_decimal = a_decimal(valor, "Cantidad" if categoria == "bolsas" else "Valor")

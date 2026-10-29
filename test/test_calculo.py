@@ -9,7 +9,15 @@ from decimal import Decimal
 from unittest.mock import patch
 
 from model.calculo import Calculo
-from controller.calculos_controller import CalculosController, ErrorNoEncontrado
+from controller.calculos_controller import CalculosController
+from model.excepciones import (
+    ErrorBaseDeDatos,
+    ErrorCategoriaDesconocida,
+    ErrorConexion,
+    ErrorNoEncontrado,
+    ErrorTablaNoExiste,
+    ErrorValorInvalido,
+)
 import secret_config  # el controlador ya dejo la carpeta del proyecto en sys.path
 
 
@@ -40,7 +48,7 @@ class TestCalculo(unittest.TestCase):
     def test_crear_tabla_error_sin_conexion(self):
         # Con una contrasena incorrecta no se puede conectar: debe dar un mensaje claro
         with patch.object(secret_config, "PGPASSWORD", "contrasena-incorrecta"):
-            with self.assertRaisesRegex(Exception, "No se pudo conectar"):
+            with self.assertRaisesRegex(ErrorConexion, "No se pudo conectar"):
                 CalculosController.crear_tabla()
 
     # ---------- Borrar tabla ----------
@@ -48,14 +56,14 @@ class TestCalculo(unittest.TestCase):
         CalculosController.borrar_tabla()
         try:
             # Sin la tabla, buscar debe fallar con un mensaje claro
-            with self.assertRaisesRegex(Exception, "no existe"):
+            with self.assertRaisesRegex(ErrorTablaNoExiste, "no existe"):
                 CalculosController.buscar_todos()
         finally:
             CalculosController.crear_tabla()  # dejarla creada para las demas pruebas
 
     def test_borrar_tabla_error_sin_conexion(self):
         with patch.object(secret_config, "PGPASSWORD", "contrasena-incorrecta"):
-            with self.assertRaisesRegex(Exception, "No se pudo conectar"):
+            with self.assertRaisesRegex(ErrorConexion, "No se pudo conectar"):
                 CalculosController.borrar_tabla()
 
     # ---------- Insertar: casos normales ----------
@@ -82,27 +90,27 @@ class TestCalculo(unittest.TestCase):
 
     # ---------- Insertar: casos de error ----------
     def test_insertar_error_valor_negativo(self):
-        with self.assertRaisesRegex(ValueError, "negativo"):
+        with self.assertRaisesRegex(ErrorValorInvalido, "negativo"):
             Calculo.crear("restaurante", "-100")
         self.assertEqual(CalculosController.buscar_todos(), [])
 
     def test_insertar_error_valor_no_numerico(self):
-        with self.assertRaisesRegex(ValueError, "número"):
+        with self.assertRaisesRegex(ErrorValorInvalido, "número"):
             Calculo.crear("licores", "abc")
 
     def test_insertar_error_categoria_invalida(self):
-        with self.assertRaisesRegex(ValueError, "Categoría"):
+        with self.assertRaisesRegex(ErrorCategoriaDesconocida, "Categoría"):
             Calculo.crear("juguetes", "1000")
 
     def test_insertar_error_bolsas_decimales(self):
-        with self.assertRaisesRegex(ValueError, "entero"):
+        with self.assertRaisesRegex(ErrorValorInvalido, "entero"):
             Calculo.crear("bolsas", "2.5")
 
     def test_insertar_error_rechazado_por_la_base_de_datos(self):
         # La tabla tiene check (valor >= 0): un calculo con valor negativo armado a mano
         # (solo el valor es invalido) debe ser rechazado por la base de datos
         invalido = Calculo(None, "general19", Decimal("-1"), Decimal("0"), Decimal("0"))
-        with self.assertRaisesRegex(Exception, "Error de base de datos"):
+        with self.assertRaisesRegex(ErrorBaseDeDatos, "Error de base de datos"):
             CalculosController.insertar(invalido)
         self.assertEqual(CalculosController.buscar_todos(), [])
 
@@ -133,11 +141,11 @@ class TestCalculo(unittest.TestCase):
             CalculosController.buscar_calculo(999999)
 
     def test_buscar_error_id_no_numerico(self):
-        with self.assertRaisesRegex(ValueError, "entero"):
+        with self.assertRaisesRegex(ErrorValorInvalido, "entero"):
             CalculosController.buscar_calculo("abc")
 
     def test_buscar_error_categoria_invalida(self):
-        with self.assertRaisesRegex(ValueError, "Categoría"):
+        with self.assertRaisesRegex(ErrorCategoriaDesconocida, "Categoría"):
             CalculosController.buscar_por_categoria("juguetes")
 
 

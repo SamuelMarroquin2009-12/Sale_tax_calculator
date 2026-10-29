@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 
@@ -10,11 +11,8 @@ import psycopg2.errors
 
 from model.calculo import Calculo
 from model.categoria import Categoria
-
-
-class ErrorNoEncontrado(Exception):
-    """ Excepcion que indica que una fila buscada no fue encontrada """
-    pass
+from model.excepciones import (ErrorBaseDeDatos, ErrorConexion, ErrorConfiguracion, ErrorNoEncontrado,
+                               ErrorTablaNoExiste, ErrorValorInvalido)
 
 
 class CalculosController:
@@ -57,7 +55,7 @@ class CalculosController:
         try:
             id_calculo = int(id_calculo)
         except (TypeError, ValueError):
-            raise ValueError("El id debe ser un número entero") from None
+            raise ErrorValorInvalido("El id debe ser un número entero") from None
 
         fila = CalculosController._ejecutar(
             """select id_calculo, categoria, valor, mililitros, impuesto, fecha
@@ -112,30 +110,40 @@ class CalculosController:
             cursor.connection.commit()
             return resultado
         except psycopg2.errors.UndefinedTable as error:
-            raise Exception("La tabla 'calculos' no existe. Ejecute crear_tablas.py para crearla.") from error
+            raise ErrorTablaNoExiste("La tabla 'calculos' no existe. Cree las tablas desde el menú (o con crear_tablas.py).") from error
         except psycopg2.Error as error:
-            raise Exception(f"Error de base de datos: {str(error).strip()}") from error
+            raise ErrorBaseDeDatos(f"Error de base de datos: {str(error).strip()}") from error
         finally:
             cursor.connection.close()
 
     @staticmethod
-    def obtener_cursor():
-        """ Crea la conexion a la base de datos y retorna un cursor para hacer consultas """
+    def _leer_configuracion() -> dict:
+        """ Datos de conexion: de secret_config.py (local) o, si no existe, de variables de entorno (web) """
+        claves = ("PGHOST", "PGDATABASE", "PGUSER", "PGPASSWORD", "PGPORT")
         try:
             import secret_config
-        except ImportError as error:
-            raise Exception("No se encontró secret_config.py. Copie secret_config_sample.py "
-                            "como secret_config.py y ponga los datos de su base de datos "
-                            "(vea el README).") from error
+        except ImportError:
+            configuracion = {clave: os.environ.get(clave) for clave in claves}
+        else:
+            configuracion = {clave: getattr(secret_config, clave, None) for clave in claves}
+        faltan = [clave for clave, valor in configuracion.items()
+                  if valor is None or (valor == "" and clave != "PGPASSWORD")]  # una base local puede no tener contraseña
+        if faltan:
+            raise ErrorConfiguracion("Faltan datos de conexión: cree secret_config.py a partir de "
+                                     "secret_config_sample.py (o defina las variables PGHOST, PGDATABASE, "
+                                     "PGUSER, PGPASSWORD y PGPORT). Vea el README.")
+        return configuracion
+
+    @staticmethod
+    def obtener_cursor():
+        """ Crea la conexion a la base de datos y retorna un cursor para hacer consultas """
+        datos = CalculosController._leer_configuracion()
         try:
-            connection = psycopg2.connect(database=secret_config.PGDATABASE, user=secret_config.PGUSER,
-                                          password=secret_config.PGPASSWORD, host=secret_config.PGHOST,
-                                          port=secret_config.PGPORT, connect_timeout=10)
-        except AttributeError as error:
-            raise Exception("secret_config.py está incompleto: debe tener PGHOST, PGDATABASE, "
-                            "PGUSER, PGPASSWORD y PGPORT.") from error
+            connection = psycopg2.connect(database=datos["PGDATABASE"], user=datos["PGUSER"],
+                                          password=datos["PGPASSWORD"], host=datos["PGHOST"],
+                                          port=datos["PGPORT"], connect_timeout=10)
         except psycopg2.OperationalError as error:
-            raise Exception("No se pudo conectar a la base de datos. Revise los datos de "
-                            "secret_config.py y su conexión a internet.") from error
+            raise ErrorConexion("No se pudo conectar a la base de datos. Revise los datos de "
+                                "conexión y su conexión a internet.") from error
         # Todas las instrucciones se ejecutan a traves de un cursor
         return connection.cursor()
