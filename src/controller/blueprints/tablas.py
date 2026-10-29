@@ -1,4 +1,6 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+import os
+
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 
 from controller.calculos_controller import CalculosController
 from model.excepciones import ErrorCalculadora
@@ -46,6 +48,9 @@ def consultar_estado() -> dict:
 
 @tablas_bp.route("/", methods=["GET", "POST"])
 def administrar_tablas():
+    if os.environ.get("APP_ENV", "").lower() == "production":
+        abort(404)
+
     if request.method == "POST":
         accion = request.form.get("accion", "")
 

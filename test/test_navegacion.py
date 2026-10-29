@@ -15,6 +15,21 @@ class TestNavegacion(unittest.TestCase):
     def setUp(self):
         self.cliente = app.test_client()
 
+    def test_tablas_no_disponible_en_produccion(self):
+        with patch.dict("os.environ", {"APP_ENV": "production"}):
+            respuesta_get = self.cliente.get("/tablas/")
+
+            respuesta_post = self.cliente.post(
+                "/tablas/",
+                data={
+                    "accion": "borrar",
+                    "confirmacion": "SI"
+                }
+            )
+
+        self.assertEqual(respuesta_get.status_code, 404)
+        self.assertEqual(respuesta_post.status_code, 404)
+
     def test_paginas_principales_cargan(self):
         rutas = [
             "/",
