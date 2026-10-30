@@ -38,6 +38,20 @@ class CalculosController:
         CalculosController._ejecutar("delete from calculos")
 
     @staticmethod
+    def existe_tabla() -> bool:
+        """ Indica si la tabla calculos ya fue creada en la base de datos """
+        fila = CalculosController._ejecutar(
+            "select to_regclass('calculos') is not null",
+            traer="uno")
+        return fila[0]
+
+    @staticmethod
+    def contar_calculos() -> int:
+        """ Retorna cuantos calculos hay guardados. Dispara ErrorTablaNoExiste si la tabla no existe """
+        fila = CalculosController._ejecutar("select count(*) from calculos", traer="uno")
+        return fila[0]
+
+    @staticmethod
     def insertar(calculo: Calculo) -> int:
         """ Recibe una instancia de la clase Calculo, la inserta en la tabla y retorna su id """
         fila = CalculosController._ejecutar(
@@ -50,7 +64,7 @@ class CalculosController:
         return calculo.id_calculo
 
     @staticmethod
-    def buscar_calculo(id_calculo) -> Calculo:
+    def buscar_calculo(id_calculo: int) -> Calculo:
         """ Trae un calculo dado su id. Dispara una excepcion si no existe """
         try:
             id_calculo = int(id_calculo)

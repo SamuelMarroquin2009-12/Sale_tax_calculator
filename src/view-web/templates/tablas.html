@@ -26,6 +26,7 @@
     <form method="post" class="form-simple"><input type="hidden" name="accion" value="crear">
       <button type="submit">{{ icono("check", 18) }}Crear tablas</button></form>
   </section>
+  {% if borrado_permitido %}
   <section class="tarjeta zona-peligro">
     <span class="circulo peligro">{{ icono("base_datos", 22) }}</span>
     <h2>Borrar tablas</h2>
@@ -35,6 +36,7 @@
       <input id="confirmacion" name="confirmacion" autocomplete="off">
       <button type="submit" class="peligro">Borrar tablas</button></form>
   </section>
+  {% endif %}
 </div>
 <section class="tarjeta">
   <h2>¿Qué se guarda en cada cálculo?</h2>

@@ -1,5 +1,5 @@
 # Pruebas del Model Calculo y del Controller contra la base de datos PostgreSQL
-# (usan los datos de conexion de secret_config.py)
+# (usan los datos de conexion de secret_config.py o de las variables de entorno PG*)
 import unittest
 import sys
 from pathlib import Path
@@ -18,7 +18,22 @@ from model.excepciones import (
     ErrorTablaNoExiste,
     ErrorValorInvalido,
 )
-import secret_config  # el controlador ya dejo la carpeta del proyecto en sys.path
+
+LEER_CONFIGURACION_REAL = CalculosController._leer_configuracion
+
+
+def leer_configuracion_con_clave_incorrecta() -> dict:
+    """ Los datos reales de conexion, pero con una contrasena que el servidor rechaza """
+    configuracion = LEER_CONFIGURACION_REAL()
+    configuracion["PGPASSWORD"] = "contrasena-incorrecta"
+    return configuracion
+
+
+def sin_conexion():
+    """ Contexto para probar los errores de conexion sin depender de como se configuro la BD """
+    return patch.object(
+        CalculosController, "_leer_configuracion", new=leer_configuracion_con_clave_incorrecta
+    )
 
 
 class TestCalculo(unittest.TestCase):
@@ -47,7 +62,7 @@ class TestCalculo(unittest.TestCase):
 
     def test_crear_tabla_error_sin_conexion(self):
         # Con una contrasena incorrecta no se puede conectar: debe dar un mensaje claro
-        with patch.object(secret_config, "PGPASSWORD", "contrasena-incorrecta"):
+        with sin_conexion():
             with self.assertRaisesRegex(ErrorConexion, "No se pudo conectar"):
                 CalculosController.crear_tabla()
 
@@ -62,9 +77,36 @@ class TestCalculo(unittest.TestCase):
             CalculosController.crear_tabla()  # dejarla creada para las demas pruebas
 
     def test_borrar_tabla_error_sin_conexion(self):
-        with patch.object(secret_config, "PGPASSWORD", "contrasena-incorrecta"):
+        with sin_conexion():
             with self.assertRaisesRegex(ErrorConexion, "No se pudo conectar"):
                 CalculosController.borrar_tabla()
+
+    # ---------- Estado de la tabla ----------
+    def test_existe_tabla(self):
+        self.assertTrue(CalculosController.existe_tabla())
+
+    def test_no_existe_tabla_despues_de_borrarla(self):
+        CalculosController.borrar_tabla()
+        try:
+            self.assertFalse(CalculosController.existe_tabla())
+        finally:
+            CalculosController.crear_tabla()  # dejarla creada para las demas pruebas
+
+    def test_contar_calculos(self):
+        self.assertEqual(CalculosController.contar_calculos(), 0)
+
+        self.insertar_y_buscar("general19", "100000")
+        self.insertar_y_buscar("licores", "50000")
+
+        self.assertEqual(CalculosController.contar_calculos(), 2)
+
+    def test_contar_calculos_error_tabla_no_existe(self):
+        CalculosController.borrar_tabla()
+        try:
+            with self.assertRaisesRegex(ErrorTablaNoExiste, "no existe"):
+                CalculosController.contar_calculos()
+        finally:
+            CalculosController.crear_tabla()
 
     # ---------- Insertar: casos normales ----------
     def test_insertar_general_19(self):

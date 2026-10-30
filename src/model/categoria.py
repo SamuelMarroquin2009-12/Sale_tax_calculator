@@ -2,6 +2,14 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
 from model.excepciones import ErrorCategoriaDesconocida, ErrorValorInvalido
 
+CLAVE_BOLSAS = "bolsas"
+CLAVE_CIGARRILLOS = "cigarrillos"
+
+IMPUESTO_POR_BOLSA = Decimal("73")
+TARIFA_CIGARRILLOS = Decimal("0.30")
+IMPUESTO_POR_MILILITRO = Decimal("2000")
+DECIMALES_DEL_IMPUESTO = Decimal("0.01")
+
 
 def a_decimal(dato, nombre="Valor"):
     """ Convierte la entrada a Decimal. Dispara ErrorValorInvalido con mensaje claro si no es valida """
@@ -32,29 +40,29 @@ class Categoria:
 
     def pide_mililitros(self) -> bool:
         """ Solo cigarrillos / vapeadores necesitan ademas los mililitros de liquido """
-        return self.clave == "cigarrillos"
+        return self.clave == CLAVE_CIGARRILLOS
 
     def etiqueta_valor(self) -> str:
         """ Texto del dato principal que pide la categoria """
-        if self.clave == "bolsas":
+        if self.clave == CLAVE_BOLSAS:
             return "Cantidad de bolsas (unidades)"
         return "Valor de la compra (COP)"
 
     def calcular_impuesto(self, valor, mililitros=0) -> Decimal:
         """ Aplica la formula de la categoria. Retorna el impuesto con 2 decimales """
-        valor = a_decimal(valor, "Cantidad" if self.clave == "bolsas" else "Valor")
+        valor = a_decimal(valor, "Cantidad" if self.clave == CLAVE_BOLSAS else "Valor")
 
-        if self.clave == "bolsas":
+        if self.clave == CLAVE_BOLSAS:
             if valor != valor.to_integral_value():
                 raise ErrorValorInvalido("Cantidad: debe ser un número entero de bolsas")
-            impuesto = valor * Decimal("73")
-        elif self.clave == "cigarrillos":
+            impuesto = valor * IMPUESTO_POR_BOLSA
+        elif self.clave == CLAVE_CIGARRILLOS:
             ml = a_decimal(mililitros, "Mililitros")
-            impuesto = valor * Decimal("0.30") + ml * Decimal("2000")
+            impuesto = valor * TARIFA_CIGARRILLOS + ml * IMPUESTO_POR_MILILITRO
         else:
             impuesto = valor * self.tarifa
 
-        return impuesto.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        return impuesto.quantize(DECIMALES_DEL_IMPUESTO, rounding=ROUND_HALF_UP)
 
     @staticmethod
     def listar() -> list:
@@ -76,6 +84,6 @@ CATEGORIAS = {
     "restaurante": Categoria("restaurante", "Restaurantes (INC 8%)", "valor x 0.08", Decimal("0.08")),
     "licores":     Categoria("licores", "Licores", "valor x 0.49", Decimal("0.49")),
     "suntuarios":  Categoria("suntuarios", "Bienes suntuarios", "valor x 0.19", Decimal("0.19")),
-    "bolsas":      Categoria("bolsas", "Bolsas plásticas", "cantidad x 73"),
-    "cigarrillos": Categoria("cigarrillos", "Cigarrillos / Vapeadores", "(valor x 0.30) + (ml x 2000)"),
+    CLAVE_BOLSAS: Categoria(CLAVE_BOLSAS, "Bolsas plásticas", "cantidad x 73"),
+    CLAVE_CIGARRILLOS: Categoria(CLAVE_CIGARRILLOS, "Cigarrillos / Vapeadores", "(valor x 0.30) + (ml x 2000)"),
 }
