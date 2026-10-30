@@ -2,7 +2,7 @@
 
 Aplicación **web** en Python (Flask), con patrón **MVC** y Blueprints de Flask, y base de datos **PostgreSQL** (psycopg2). Calcula el impuesto de una compra según su categoría y **guarda y consulta** los cálculos en la base de datos. La versión de consola sigue disponible en la carpeta `src/view-console/`.
 
-**Aplicación publicada:** https://sale-tax-calculator.onrender.com
+**Aplicación publicada:** https://sale-tax-calculator-eo97.onrender.com
 
 ## Autores (creadores del proyecto original)
 
