@@ -9,6 +9,8 @@ IMPUESTO_POR_BOLSA = Decimal("73")
 TARIFA_CIGARRILLOS = Decimal("0.30")
 IMPUESTO_POR_MILILITRO = Decimal("2000")
 DECIMALES_DEL_IMPUESTO = Decimal("0.01")
+# Con mas de ~25 digitos el redondeo a centavos desborda la precision de Decimal
+VALOR_MAXIMO = Decimal("999999999999")
 
 
 def a_decimal(dato, nombre="Valor"):
@@ -23,6 +25,8 @@ def a_decimal(dato, nombre="Valor"):
         raise ErrorValorInvalido(f"{nombre}: debe ser un número válido")
     if numero < 0:
         raise ErrorValorInvalido(f"{nombre}: no puede ser negativo")
+    if numero > VALOR_MAXIMO:
+        raise ErrorValorInvalido(f"{nombre}: es demasiado grande (máximo {VALOR_MAXIMO:,.0f})".replace(",", "."))
     return numero
 
 
