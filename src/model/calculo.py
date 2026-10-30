@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from model.categoria import Categoria, a_decimal
+from model.categoria import CLAVE_BOLSAS, Categoria, a_decimal
 
 
 class Calculo:
@@ -24,7 +24,7 @@ class Calculo:
         Dispara una excepcion propia (ErrorValorInvalido o ErrorCategoriaDesconocida) si algun dato es invalido
         """
         cat = Categoria.obtener(categoria)
-        valor_decimal = a_decimal(valor, "Cantidad" if categoria == "bolsas" else "Valor")
+        valor_decimal = a_decimal(valor, "Cantidad" if categoria == CLAVE_BOLSAS else "Valor")
         ml_decimal = a_decimal(mililitros, "Mililitros") if cat.pide_mililitros() else Decimal("0")
         impuesto = cat.calcular_impuesto(valor_decimal, ml_decimal)
         return Calculo(None, categoria, valor_decimal, ml_decimal, impuesto)

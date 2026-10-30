@@ -15,20 +15,41 @@ class TestNavegacion(unittest.TestCase):
     def setUp(self):
         self.cliente = app.test_client()
 
-    def test_tablas_no_disponible_en_produccion(self):
-        with patch.dict("os.environ", {"APP_ENV": "production"}):
-            respuesta_get = self.cliente.get("/tablas/")
+    def test_tablas_sigue_disponible_en_produccion(self):
+        with patch.dict("os.environ", {"APP_ENV": "production"}), patch(
+            "controller.blueprints.tablas.consultar_estado",
+            return_value={"existe": False, "total": 0, "mensaje": ""}
+        ):
+            respuesta = self.cliente.get("/tablas/")
 
-            respuesta_post = self.cliente.post(
+        pagina = respuesta.get_data(as_text=True)
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertIn("Crear tablas", pagina)
+        self.assertNotIn("Borrar tablas", pagina)
+
+    def test_crear_tabla_permitido_en_produccion(self):
+        with patch.dict("os.environ", {"APP_ENV": "production"}), patch(
+            "controller.blueprints.tablas.CalculosController.crear_tabla"
+        ) as crear_tabla:
+            respuesta = self.cliente.post("/tablas/", data={"accion": "crear"})
+
+        self.assertEqual(respuesta.status_code, 302)
+        crear_tabla.assert_called_once()
+
+    def test_borrar_tabla_bloqueado_en_produccion(self):
+        with patch.dict("os.environ", {"APP_ENV": "production"}), patch(
+            "controller.blueprints.tablas.CalculosController.borrar_tabla"
+        ) as borrar_tabla:
+            respuesta = self.cliente.post(
                 "/tablas/",
-                data={
-                    "accion": "borrar",
-                    "confirmacion": "SI"
-                }
+                data={"accion": "borrar", "confirmacion": "SI"},
+                follow_redirects=True
             )
 
-        self.assertEqual(respuesta_get.status_code, 404)
-        self.assertEqual(respuesta_post.status_code, 404)
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertIn("deshabilitado", respuesta.get_data(as_text=True))
+        borrar_tabla.assert_not_called()
 
     def test_paginas_principales_cargan(self):
         rutas = [

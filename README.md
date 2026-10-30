@@ -21,7 +21,7 @@ Aplicación **web** en Python (Flask), con patrón **MVC** y Blueprints de Flask
 | --------------- | ---- | -------- |
 | Menú de inicio | `/` | Acceso a las funcionalidades principales |
 | Guía de impuestos | `/guia/` | Explica en lenguaje sencillo cada impuesto, con un ejemplo calculado |
-| Tablas de la BD | `/tablas/` | Permite consultar el estado de la tabla `calculos`, crearla o borrarla con confirmación |
+| Tablas de la BD | `/tablas/` | Muestra el estado de la tabla `calculos` y permite **crearla** (y borrarla con confirmación, salvo en la aplicación publicada, donde el borrado está deshabilitado) |
 | Calcular y guardar (Insertar) | `/calculos/nuevo` | Calcula el impuesto y guarda el cálculo en la base de datos |
 | Buscar | `/calculos/buscar` | Busca por ID, por categoría o muestra todos los cálculos |
 
@@ -146,7 +146,7 @@ PORT=5001 python src/app.py
 $env:PORT=5001; python src/app.py
 ```
 
-Después, abra [http://127.0.0.1:5001](http://127.0.0.1:5001). Esto requiere que la aplicación esté configurada para leer la variable `PORT`.
+Después, abra [http://127.0.0.1:5001](http://127.0.0.1:5001).
 
 **7. Recorrer la aplicación**
 
@@ -158,7 +158,7 @@ Con la base de datos en blanco:
 4. **Buscar:** permite consultar por ID, por categoría o ver todos los cálculos guardados.
 5. **Guía:** explica las categorías de impuestos y muestra ejemplos.
 
-**8. Ejecutar las pruebas unitarias (opcional)**
+**8. Ejecutar las pruebas unitarias**
 
 Las pruebas pueden borrar y recrear la tabla `calculos`. Utilice una base de datos destinada exclusivamente a pruebas.
 
@@ -166,7 +166,7 @@ Las pruebas pueden borrar y recrear la tabla `calculos`. Utilice una base de dat
 python -m unittest discover -s test -p "*test*.py" -v
 ```
 
-En la última ejecución completa se obtuvieron **58 pruebas correctas (`OK`)**.
+En la última ejecución completa se obtuvieron **73 pruebas correctas (`OK`)**, tanto con una base de datos en blanco como con datos previos.
 
 Si algo falla, consulte la sección **Solución de problemas** al final.
 
@@ -318,9 +318,11 @@ Ejecute:
 python -m unittest discover -s test -p "*test*.py" -v
 ```
 
-**Resultado verificado:** 58 pruebas ejecutadas correctamente (`OK`).
+**Resultado verificado:** 73 pruebas ejecutadas correctamente (`OK`).
 
-Las pruebas incluyen comprobaciones de la guía, la navegación, las rutas web, las validaciones de entrada y las operaciones de cálculo y consulta.
+Las pruebas incluyen comprobaciones de la guía, la navegación, las rutas web (incluido el recorrido completo con una base de datos en blanco: crear la tabla desde el menú, guardar el primer cálculo y buscarlo), las validaciones de entrada y las operaciones de cálculo y consulta.
+
+Las pruebas usan la misma conexión que la aplicación: `secret_config.py` o, si no existe, las variables de entorno `PGHOST`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` y `PGPORT`.
 
 **Advertencia sobre la base de datos:** algunas pruebas utilizan preparaciones (`setUp` y `setUpClass`) que borran y crean la tabla `calculos`. Por lo tanto, utilice una base de datos exclusiva para pruebas. No ejecute la suite contra una base de datos de producción ni contra una base que contenga datos que deba conservar.
 
@@ -345,13 +347,13 @@ La aplicación puede desplegarse en un servicio web de Render y conectarse a una
    gunicorn --chdir src app:app
    ```
 
-6. En las variables de entorno del servicio, configure los datos de conexión que necesita la aplicación: `PGHOST`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` y `PGPORT`. Configure también `SECRET_KEY` si la aplicación la requiere.
+6. En las variables de entorno del servicio, configure los datos de conexión que necesita la aplicación: `PGHOST`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` y `PGPORT`. Configure también `SECRET_KEY` y `APP_ENV=production`.
+
+   Con `APP_ENV=production` la página **Tablas** sigue disponible para crear la tabla, pero el borrado de tablas queda deshabilitado para proteger los datos de la aplicación publicada. Sin esa variable (por ejemplo, en el computador local) también se puede borrar la tabla, previa confirmación.
 7. Cree el servicio y revise los registros de inicio.
 8. Cuando el despliegue termine, abra la URL pública y compruebe que las páginas principales carguen correctamente.
 
-La base de datos debe existir y estar accesible desde el servicio web. Si la tabla no existe, créela desde el menú **Tablas** o guarde el primer cálculo si la creación automática está disponible.
-
-Finalmente, reemplace el marcador de **Aplicación publicada** al inicio de este README por la URL real de la aplicación desplegada.
+La base de datos debe existir y estar accesible desde el servicio web. Si la tabla no existe, créela desde el menú **Tablas** o simplemente guarde el primer cálculo: la aplicación la crea automáticamente.
 
 ## Modelo de datos
 
@@ -421,7 +423,7 @@ La suite automatizada incluye pruebas de las funcionalidades del proyecto y de l
 - **`ModuleNotFoundError: No module named 'flask'` o `psycopg2`:** compruebe que el entorno virtual esté activado y que las dependencias se hayan instalado correctamente.
 - **PowerShell bloquea `Activate.ps1`:** si la política de ejecución lo permite en su equipo, puede ejecutar `Set-ExecutionPolicy -Scope Process Bypass` en esa sesión y volver a activar el entorno.
 - **`password authentication failed` o `database "ventas" does not exist`:** revise el usuario, la contraseña y el nombre de la base de datos configurados.
-- **`Address already in use`:** el puerto está ocupado. Configure otro puerto si la aplicación admite la variable `PORT`.
+- **`Address already in use`:** el puerto está ocupado. Use otro con la variable `PORT` (por ejemplo, `PORT=5001 python src/app.py`).
 - **El despliegue en Render no inicia:** revise los registros del servicio, el comando de inicio y las variables de entorno.
 
 ## Notas
