@@ -166,7 +166,7 @@ Las pruebas pueden borrar y recrear la tabla `calculos`. Utilice una base de dat
 python -m unittest discover -s test -p "*test*.py" -v
 ```
 
-En la última ejecución completa se obtuvieron **73 pruebas correctas (`OK`)**, tanto con una base de datos en blanco como con datos previos.
+En la última ejecución completa se obtuvieron **77 pruebas correctas (`OK`)**, tanto con una base de datos en blanco como con datos previos.
 
 Si algo falla, consulte la sección **Solución de problemas** al final.
 
@@ -318,7 +318,7 @@ Ejecute:
 python -m unittest discover -s test -p "*test*.py" -v
 ```
 
-**Resultado verificado:** 73 pruebas ejecutadas correctamente (`OK`).
+**Resultado verificado:** 77 pruebas ejecutadas correctamente (`OK`).
 
 Las pruebas incluyen comprobaciones de la guía, la navegación, las rutas web (incluido el recorrido completo con una base de datos en blanco: crear la tabla desde el menú, guardar el primer cálculo y buscarlo), las validaciones de entrada y las operaciones de cálculo y consulta.
 
@@ -389,6 +389,8 @@ Las siguientes fórmulas resumen las reglas configuradas en el proyecto:
 | Cigarrillos / Vapeadores | Valor (COP) y mililitros | `(valor × 0.30) + (ml × 2000)` |
 
 Los números deben escribirse **sin separador de miles**; por ejemplo, `50000`, no `50.000`.
+
+El valor máximo que acepta la calculadora es **999.999.999.999**; con un número mayor muestra un mensaje de error en lugar de calcular.
 
 Las tarifas y fórmulas anteriores reflejan la lógica implementada en el proyecto académico. Para determinar las obligaciones tributarias aplicables a una compra real, se debe consultar la normativa colombiana vigente.
 

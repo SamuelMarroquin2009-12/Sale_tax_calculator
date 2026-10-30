@@ -64,6 +64,23 @@ class TestCategoria(unittest.TestCase):
         with self.assertRaisesRegex(ErrorValorInvalido, "válido"):
             self.calcular("general19", "inf")
 
+    def test_error_valor_demasiado_grande(self):
+        for valor in ["1e30", "1e999", "9" * 32, "1000000000000"]:
+            with self.subTest(valor=valor):
+                with self.assertRaisesRegex(ErrorValorInvalido, "demasiado grande"):
+                    self.calcular("general19", valor)
+
+    def test_error_bolsas_demasiado_grandes(self):
+        with self.assertRaisesRegex(ErrorValorInvalido, "demasiado grande"):
+            self.calcular("bolsas", "1e999")
+
+    def test_error_mililitros_demasiado_grandes(self):
+        with self.assertRaisesRegex(ErrorValorInvalido, "demasiado grande"):
+            Categoria.obtener("cigarrillos").calcular_impuesto("100000", "1e999")
+
+    def test_valor_maximo_permitido(self):
+        self.assertEqual(self.calcular("licores", "999999999999"), Decimal("489999999999.51"))
+
     def test_error_bolsas_decimales(self):
         with self.assertRaisesRegex(ErrorValorInvalido, "entero"):
             self.calcular("bolsas", "1.5")
