@@ -37,8 +37,6 @@ Seguimos el patrón MVC, cada carpeta tiene su propio trabajo:
 - `test/`: las pruebas unitarias.
 - `app.py`: crea la aplicación Flask y registra el Blueprint.
 
-Además hay una carpeta `static/diseno/` con una maqueta que solo se ve bonita (ver más abajo). No hace parte de la aplicación que funciona.
-
 ## Cómo ejecutarla en su computador (con una base de datos en blanco)
 
 1. Necesita tener Python 3 y una base de datos PostgreSQL vacía. Puede ser una de su computador o una gratis en https://neon.tech o https://render.com.
@@ -85,10 +83,6 @@ Ojo: las pruebas del controlador borran los cálculos de la base de datos que es
 - Build Command: `pip install -r requirements.txt`
 - Start Command: `flask run -p 10000 -h 0.0.0.0`
 - En Environment hay que crear las variables `PGHOST`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` y `PGPORT` con los datos de la base de datos.
-
-## La maqueta visual
-
-Antes de rehacer el proyecto con lo que vimos en clase, Isabella había hecho una página con más diseño (colores, iconos, modo oscuro y una guía de impuestos). La dejamos como maqueta: se puede navegar entre los apartados y apretar los botones, pero no calcula ni guarda nada. Se abre con la aplicación corriendo en http://127.0.0.1:5000/static/diseno/index.html (o en la dirección de Render, agregando `/static/diseno/index.html`).
 
 ## Problemas comunes
 
