@@ -52,7 +52,7 @@ class ErrorCategoriaDesconocida(Exception):
     pass
 
 
-def convertir_a_numero(dato, nombre: str) -> float:
+def convertir_a_numero(dato, nombre: str):
     """
     Convierte lo que escribió el usuario (llega como texto) en un número.
     Dispara ErrorValorInvalido si no es un número entre 0 y VALOR_MAXIMO
@@ -90,7 +90,7 @@ class Calculo:
         self.impuesto = impuesto
         self.fecha = fecha
 
-    def calcular_impuesto(self) -> float:
+    def calcular_impuesto(self):
         """
         Revisa que los datos estén bien, calcula el impuesto según la categoría y lo deja
         en self.impuesto (redondeado a 2 decimales).
@@ -128,7 +128,7 @@ class Calculo:
         self.impuesto = round(impuesto, 2)
         return self.impuesto
 
-    def es_igual(self, otro) -> bool:
+    def es_igual(self, otro):
         """ Compara esta instancia con otra. Si algo es diferente el assert dispara un error """
         assert self.id_calculo == otro.id_calculo
         assert self.categoria == otro.categoria
