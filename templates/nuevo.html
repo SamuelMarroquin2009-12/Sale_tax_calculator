@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Calcular y guardar</title>
+</head>
+
+<body style="background-color: lightblue; text-align: center;">
+
+    <h1>Calcular y guardar un impuesto</h1>
+
+    <p>Escriba los datos de la compra</p>
+
+    <!-- action es la URL a la que se envían los datos cuando se pulsa el botón.
+         Los datos viajan en la URL y en Python los leemos con request.args -->
+    <form action="/guardar">
+        <div>
+            Tipo de producto:
+            <select name="categoria">
+                <!-- Este for repite una opción por cada categoría que viene del Model -->
+                {% for clave, nombre in categorias.items() %}
+                <option value="{{ clave }}">{{ nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <br>
+        <div>
+            Valor de la compra en pesos (si escogió bolsas, escriba la cantidad de bolsas):
+            <input type="text" name="valor" />
+        </div>
+        <br>
+        <div>
+            Mililitros (solo para cigarrillos y vapeadores, en los demás deje 0):
+            <input type="text" name="mililitros" value="0" />
+        </div>
+        <br>
+        <input type="submit" value="Calcular y guardar" />
+    </form>
+
+    <p>Escriba los números sin puntos de miles, por ejemplo 50000 y no 50.000</p>
+
+    <div>
+        <a href="/">Volver al menú</a>
+    </div>
+
+</body>
+
+</html>

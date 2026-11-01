@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Resultado</title>
+</head>
+
+<body style="background-color: lightblue; text-align: center;">
+
+    <!-- Aquí sale el mensaje: puede ser que todo salió bien o un mensaje de error -->
+    <h2>{{ mensaje }}</h2>
+
+    <!-- Solo dibujamos la tabla si hay cálculos para mostrar -->
+    {% if calculos %}
+
+    <!-- margin: auto deja la tabla en el centro de la página -->
+    <table border="1" style="margin: auto;">
+        <thead style="font-weight: bold;">
+            <tr>
+                <td>Id</td>
+                <td>Tipo de producto</td>
+                <td>Valor</td>
+                <td>Mililitros</td>
+                <td>Impuesto</td>
+                <td>Fecha</td>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Una fila por cada cálculo de la lista -->
+            {% for c in calculos %}
+            <tr>
+                <td>{{ c.id_calculo }}</td>
+                <td>{{ categorias[c.categoria] }}</td>
+                <td>{{ c.valor }}</td>
+                <td>{{ c.mililitros }}</td>
+                <td>{{ c.impuesto }}</td>
+                <td>{{ c.fecha.strftime("%Y-%m-%d %H:%M") }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% endif %}
+
+    <br>
+    <div>
+        <a href="/nuevo">Calcular otro</a> |
+        <a href="/buscar">Buscar</a> |
+        <a href="/">Menú</a>
+    </div>
+
+</body>
+
+</html>

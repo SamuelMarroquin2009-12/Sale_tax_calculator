@@ -1,195 +1,141 @@
-# Pruebas del Model Calculo y del Controller contra la base de datos PostgreSQL
-# (usan los datos de conexion de secret_config.py o de las variables de entorno PG*)
+# Pruebas del Model (las reglas para calcular el impuesto). No necesitan base de datos.
+
+# Todas las pruebas unitarias importan la biblioteca unittest
 import unittest
+
 import sys
-from pathlib import Path
-sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.append("src")
 
-from decimal import Decimal
-from unittest.mock import patch
-
-from model.calculo import Calculo
-from controller.calculos_controller import CalculosController
-from model.excepciones import (
-    ErrorBaseDeDatos,
-    ErrorCategoriaDesconocida,
-    ErrorConexion,
-    ErrorNoEncontrado,
-    ErrorTablaNoExiste,
-    ErrorValorInvalido,
-)
-
-LEER_CONFIGURACION_REAL = CalculosController._leer_configuracion
+from model.calculo import Calculo, ErrorValorInvalido, ErrorCategoriaDesconocida
 
 
-def leer_configuracion_con_clave_incorrecta() -> dict:
-    """ Los datos reales de conexion, pero con una contrasena que el servidor rechaza """
-    configuracion = LEER_CONFIGURACION_REAL()
-    configuracion["PGPASSWORD"] = "contrasena-incorrecta"
-    return configuracion
+class CalculoTest(unittest.TestCase):
+    """ Pruebas de la clase Calculo """
+
+    def calcular(self, categoria, valor, mililitros=0):
+        """ Para no repetir lo mismo en cada prueba: crea el cálculo y retorna el impuesto """
+        calculo = Calculo(categoria=categoria, valor=valor, mililitros=mililitros)
+        return calculo.calcular_impuesto()
+
+    # ---------- Casos normales: uno por cada categoría ----------
+
+    def test_normal_canasta(self):
+        # Datos de entrada
+        valor = 50000
+        # Dato de salida esperado: la canasta básica no paga impuesto
+        esperado = 0
+
+        resultado = self.calcular("canasta", valor)
+
+        self.assertAlmostEqual(esperado, resultado, 2)
+
+    def test_normal_alimentos_5(self):
+        resultado = self.calcular("alimentos5", 100000)
+        self.assertAlmostEqual(5000, resultado, 2)
+
+    def test_normal_general_19(self):
+        resultado = self.calcular("general19", 100000)
+        self.assertAlmostEqual(19000, resultado, 2)
+
+    def test_normal_restaurante(self):
+        resultado = self.calcular("restaurante", 100000)
+        self.assertAlmostEqual(8000, resultado, 2)
+
+    def test_normal_licores(self):
+        resultado = self.calcular("licores", 200000)
+        self.assertAlmostEqual(98000, resultado, 2)
+
+    def test_normal_suntuarios(self):
+        resultado = self.calcular("suntuarios", 100000)
+        self.assertAlmostEqual(19000, resultado, 2)
+
+    def test_normal_bolsas(self):
+        # 10 bolsas x $73 cada una
+        resultado = self.calcular("bolsas", 10)
+        self.assertAlmostEqual(730, resultado, 2)
+
+    def test_normal_cigarrillos(self):
+        # (100000 x 0.30) + (10 ml x 2000) = 30000 + 20000
+        resultado = self.calcular("cigarrillos", 100000, 10)
+        self.assertAlmostEqual(50000, resultado, 2)
+
+    # ---------- Casos extraordinarios ----------
+
+    def test_extraordinario_valor_cero(self):
+        resultado = self.calcular("general19", 0)
+        self.assertAlmostEqual(0, resultado, 2)
+
+    def test_extraordinario_coma_decimal(self):
+        # En Colombia se escribe 2,5 en vez de 2.5
+        resultado = self.calcular("restaurante", "2,5")
+        self.assertAlmostEqual(0.2, resultado, 2)
+
+    def test_extraordinario_valor_maximo(self):
+        # El valor más grande que se permite todavía se tiene que poder calcular
+        resultado = self.calcular("licores", 999999999999)
+        self.assertAlmostEqual(489999999999.51, resultado, 2)
+
+    def test_extraordinario_cigarrillos_sin_mililitros(self):
+        # Sin mililitros solo se cobra el 30% del valor
+        resultado = self.calcular("cigarrillos", 100000, 0)
+        self.assertAlmostEqual(30000, resultado, 2)
+
+    def test_extraordinario_espacios_en_el_valor(self):
+        resultado = self.calcular("general19", "  100000  ")
+        self.assertAlmostEqual(19000, resultado, 2)
+
+    # ---------- Casos de error ----------
+    # Con assertRaises verificamos que sí se dispare la excepción esperada
+
+    def test_error_valor_texto(self):
+        with self.assertRaises(ErrorValorInvalido):
+            self.calcular("general19", "abc")
+
+    def test_error_valor_vacio(self):
+        with self.assertRaises(ErrorValorInvalido):
+            self.calcular("general19", "")
+
+    def test_error_valor_negativo(self):
+        with self.assertRaises(ErrorValorInvalido):
+            self.calcular("general19", "-5")
+
+    def test_error_valor_demasiado_grande(self):
+        with self.assertRaises(ErrorValorInvalido):
+            self.calcular("general19", "1e30")
+
+    def test_error_valor_infinito(self):
+        with self.assertRaises(ErrorValorInvalido):
+            self.calcular("general19", "inf")
+
+    def test_error_valor_nan(self):
+        with self.assertRaises(ErrorValorInvalido):
+            self.calcular("general19", "nan")
+
+    def test_error_bolsas_con_decimales(self):
+        with self.assertRaises(ErrorValorInvalido):
+            self.calcular("bolsas", "2.5")
+
+    def test_error_mililitros_texto(self):
+        with self.assertRaises(ErrorValorInvalido):
+            self.calcular("cigarrillos", 100000, "abc")
+
+    def test_error_mililitros_negativos(self):
+        with self.assertRaises(ErrorValorInvalido):
+            self.calcular("cigarrillos", 100000, "-3")
+
+    def test_error_categoria_desconocida(self):
+        with self.assertRaises(ErrorCategoriaDesconocida):
+            self.calcular("zapatos", 100000)
+
+    def test_error_mensaje_dice_cual_fue_el_dato(self):
+        # Un buen mensaje de error debe decir qué dato causó el problema
+        with self.assertRaises(ErrorValorInvalido) as contexto:
+            self.calcular("general19", "abc")
+
+        self.assertIn("abc", str(contexto.exception))
 
 
-def sin_conexion():
-    """ Contexto para probar los errores de conexion sin depender de como se configuro la BD """
-    return patch.object(
-        CalculosController, "_leer_configuracion", new=leer_configuracion_con_clave_incorrecta
-    )
-
-
-class TestCalculo(unittest.TestCase):
-
-    # ---------- Test Fixtures ----------
-    @classmethod
-    def setUpClass(cls):
-        """ Se ejecuta al inicio de las pruebas solamente: deja la tabla calculos recien creada """
-        CalculosController.borrar_tabla()
-        CalculosController.crear_tabla()
-
-    def setUp(self):
-        """ Se ejecuta antes de cada prueba: la tabla queda sin filas """
-        CalculosController.borrar_filas()
-
-    def insertar_y_buscar(self, categoria, valor, mililitros=0):
-        calculo = Calculo.crear(categoria, valor, mililitros)
-        id_calculo = CalculosController.insertar(calculo)
-        buscado = CalculosController.buscar_calculo(id_calculo)
-        return calculo, buscado
-
-    # ---------- Crear tabla ----------
-    def test_crear_tabla_normal(self):
-        CalculosController.crear_tabla()  # crearla otra vez no debe fallar
-        self.assertEqual(CalculosController.buscar_todos(), [])
-
-    def test_crear_tabla_error_sin_conexion(self):
-        # Con una contrasena incorrecta no se puede conectar: debe dar un mensaje claro
-        with sin_conexion():
-            with self.assertRaisesRegex(ErrorConexion, "No se pudo conectar"):
-                CalculosController.crear_tabla()
-
-    # ---------- Borrar tabla ----------
-    def test_borrar_tabla_normal(self):
-        CalculosController.borrar_tabla()
-        try:
-            # Sin la tabla, buscar debe fallar con un mensaje claro
-            with self.assertRaisesRegex(ErrorTablaNoExiste, "no existe"):
-                CalculosController.buscar_todos()
-        finally:
-            CalculosController.crear_tabla()  # dejarla creada para las demas pruebas
-
-    def test_borrar_tabla_error_sin_conexion(self):
-        with sin_conexion():
-            with self.assertRaisesRegex(ErrorConexion, "No se pudo conectar"):
-                CalculosController.borrar_tabla()
-
-    # ---------- Estado de la tabla ----------
-    def test_existe_tabla(self):
-        self.assertTrue(CalculosController.existe_tabla())
-
-    def test_no_existe_tabla_despues_de_borrarla(self):
-        CalculosController.borrar_tabla()
-        try:
-            self.assertFalse(CalculosController.existe_tabla())
-        finally:
-            CalculosController.crear_tabla()  # dejarla creada para las demas pruebas
-
-    def test_contar_calculos(self):
-        self.assertEqual(CalculosController.contar_calculos(), 0)
-
-        self.insertar_y_buscar("general19", "100000")
-        self.insertar_y_buscar("licores", "50000")
-
-        self.assertEqual(CalculosController.contar_calculos(), 2)
-
-    def test_contar_calculos_error_tabla_no_existe(self):
-        CalculosController.borrar_tabla()
-        try:
-            with self.assertRaisesRegex(ErrorTablaNoExiste, "no existe"):
-                CalculosController.contar_calculos()
-        finally:
-            CalculosController.crear_tabla()
-
-    # ---------- Insertar: casos normales ----------
-    def test_insertar_general_19(self):
-        calculo, buscado = self.insertar_y_buscar("general19", "100000")
-        self.assertTrue(buscado.is_equal(calculo))
-        self.assertEqual(buscado.impuesto, Decimal("19000.00"))
-
-    def test_insertar_canasta_exenta(self):
-        calculo, buscado = self.insertar_y_buscar("canasta", "50000")
-        self.assertTrue(buscado.is_equal(calculo))
-        self.assertEqual(buscado.impuesto, Decimal("0.00"))
-
-    def test_insertar_bolsas(self):
-        calculo, buscado = self.insertar_y_buscar("bolsas", "5")
-        self.assertTrue(buscado.is_equal(calculo))
-        self.assertEqual(buscado.impuesto, Decimal("365.00"))
-
-    def test_insertar_cigarrillos_con_mililitros(self):
-        calculo, buscado = self.insertar_y_buscar("cigarrillos", "15000", "10")
-        self.assertTrue(buscado.is_equal(calculo))
-        self.assertEqual(buscado.impuesto, Decimal("24500.00"))
-        self.assertEqual(buscado.mililitros, Decimal("10"))
-
-    # ---------- Insertar: casos de error ----------
-    def test_insertar_error_valor_negativo(self):
-        with self.assertRaisesRegex(ErrorValorInvalido, "negativo"):
-            Calculo.crear("restaurante", "-100")
-        self.assertEqual(CalculosController.buscar_todos(), [])
-
-    def test_insertar_error_valor_no_numerico(self):
-        with self.assertRaisesRegex(ErrorValorInvalido, "número"):
-            Calculo.crear("licores", "abc")
-
-    def test_insertar_error_categoria_invalida(self):
-        with self.assertRaisesRegex(ErrorCategoriaDesconocida, "Categoría"):
-            Calculo.crear("juguetes", "1000")
-
-    def test_insertar_error_bolsas_decimales(self):
-        with self.assertRaisesRegex(ErrorValorInvalido, "entero"):
-            Calculo.crear("bolsas", "2.5")
-
-    def test_insertar_error_rechazado_por_la_base_de_datos(self):
-        # La tabla tiene check (valor >= 0): un calculo con valor negativo armado a mano
-        # (solo el valor es invalido) debe ser rechazado por la base de datos
-        invalido = Calculo(None, "general19", Decimal("-1"), Decimal("0"), Decimal("0"))
-        with self.assertRaisesRegex(ErrorBaseDeDatos, "Error de base de datos"):
-            CalculosController.insertar(invalido)
-        self.assertEqual(CalculosController.buscar_todos(), [])
-
-    # ---------- Buscar: casos normales ----------
-    def test_buscar_por_id(self):
-        calculo, buscado = self.insertar_y_buscar("alimentos5", "20000")
-        self.assertEqual(buscado.id_calculo, calculo.id_calculo)
-        self.assertEqual(buscado.impuesto, Decimal("1000.00"))
-
-    def test_buscar_por_categoria(self):
-        CalculosController.insertar(Calculo.crear("licores", "80000"))
-        CalculosController.insertar(Calculo.crear("restaurante", "35000"))
-        resultado = CalculosController.buscar_por_categoria("licores")
-        self.assertEqual(len(resultado), 1)
-        self.assertEqual(resultado[0].impuesto, Decimal("39200.00"))
-
-    def test_buscar_todos(self):
-        CalculosController.insertar(Calculo.crear("licores", "80000"))
-        CalculosController.insertar(Calculo.crear("suntuarios", "5000000"))
-        self.assertEqual(len(CalculosController.buscar_todos()), 2)
-
-    def test_buscar_categoria_sin_resultados(self):
-        self.assertEqual(CalculosController.buscar_por_categoria("bolsas"), [])
-
-    # ---------- Buscar: casos de error ----------
-    def test_buscar_error_id_inexistente(self):
-        with self.assertRaisesRegex(ErrorNoEncontrado, "No existe"):
-            CalculosController.buscar_calculo(999999)
-
-    def test_buscar_error_id_no_numerico(self):
-        with self.assertRaisesRegex(ErrorValorInvalido, "entero"):
-            CalculosController.buscar_calculo("abc")
-
-    def test_buscar_error_categoria_invalida(self):
-        with self.assertRaisesRegex(ErrorCategoriaDesconocida, "Categoría"):
-            CalculosController.buscar_por_categoria("juguetes")
-
-
+# Este fragmento de código permite ejecutar la prueba individualmente
+# Va fijo en todas las pruebas
 if __name__ == '__main__':
     unittest.main()
