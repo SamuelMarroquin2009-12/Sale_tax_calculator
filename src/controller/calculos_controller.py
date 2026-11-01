@@ -92,7 +92,7 @@ def insertar(calculo: Calculo):
     cursor.connection.close()
 
 
-def convertir_fila_en_calculo(fila) -> Calculo:
+def convertir_fila_en_calculo(fila):
     """ Convierte una fila que viene de la base de datos en un objeto Calculo """
     # La base de datos devuelve los números como Decimal, aquí los pasamos a float
     # para que sean del mismo tipo que usa el Model
@@ -106,7 +106,7 @@ def convertir_fila_en_calculo(fila) -> Calculo:
     )
 
 
-def buscar_por_id(id_calculo: int) -> Calculo:
+def buscar_por_id(id_calculo: int):
     """ Trae un cálculo dado su id. Dispara ErrorNoEncontrado si no existe """
     cursor = obtener_cursor()
     cursor.execute(
@@ -124,7 +124,7 @@ def buscar_por_id(id_calculo: int) -> Calculo:
     return convertir_fila_en_calculo(fila)
 
 
-def buscar_por_categoria(categoria: str) -> list:
+def buscar_por_categoria(categoria: str):
     """ Trae todos los cálculos de un tipo de producto. Si no hay ninguno, retorna una lista vacía """
     cursor = obtener_cursor()
     cursor.execute(
@@ -135,10 +135,15 @@ def buscar_por_categoria(categoria: str) -> list:
     filas = cursor.fetchall()
     cursor.connection.close()
 
-    return [convertir_fila_en_calculo(fila) for fila in filas]
+    # Convertimos cada fila en un Calculo y los vamos guardando en una lista
+    lista = []
+    for fila in filas:
+        lista.append(convertir_fila_en_calculo(fila))
+
+    return lista
 
 
-def buscar_todos() -> list:
+def buscar_todos():
     """ Trae todos los cálculos guardados """
     cursor = obtener_cursor()
     cursor.execute(
@@ -147,4 +152,9 @@ def buscar_todos() -> list:
     filas = cursor.fetchall()
     cursor.connection.close()
 
-    return [convertir_fila_en_calculo(fila) for fila in filas]
+    # Convertimos cada fila en un Calculo y los vamos guardando en una lista
+    lista = []
+    for fila in filas:
+        lista.append(convertir_fila_en_calculo(fila))
+
+    return lista
