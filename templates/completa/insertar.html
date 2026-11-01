@@ -1,5 +1,5 @@
-{% extends "base.html" %}
-{% from "iconos.html" import icono %}
+{% extends "completa/base.html" %}
+{% from "completa/iconos.html" import icono %}
 {% block titulo %}Calcular y guardar · Calculadora de Impuestos de Colombia{% endblock %}
 {% block hero %}
 <section class="encabezado">
@@ -16,7 +16,7 @@
 <div class="dos-columnas calcular">
   <section class="tarjeta">
     {% if error %}<p class="aviso error">{{ error }}</p>{% endif %}
-    {% include "_form_calculo.html" %}
+    {% include "completa/_form_calculo.html" %}
   </section>
   <section class="tarjeta panel-resultado">
     <p class="paso-titulo"><b>3</b> Mira el resultado</p>
@@ -35,8 +35,8 @@
       {% if total is not none %}<div class="total"><dt>Total con impuesto</dt><dd>{{ total|cop }}</dd></div>{% endif %}
     </dl>
     <div class="acciones">
-      <a class="boton secundario" href="{{ url_for('calculos.buscar_calculos', tipo='id', id_calculo=calculo.id_calculo) }}">{{ icono("buscar", 18) }}Ver en el historial</a>
-      <a class="boton secundario" href="{{ url_for('calculos.insertar_calculo') }}">{{ icono("calculadora", 18) }}Calcular otro</a>
+      <a class="boton secundario" href="{{ url_for('completa.buscar', tipo='id', id_calculo=calculo.id_calculo) }}">{{ icono("buscar", 18) }}Ver en el historial</a>
+      <a class="boton secundario" href="{{ url_for('completa.calcular') }}">{{ icono("calculadora", 18) }}Calcular otro</a>
     </div>
     {% else %}
     <div class="vacio">

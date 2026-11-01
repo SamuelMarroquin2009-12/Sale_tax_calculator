@@ -1,13 +1,13 @@
 {# Formulario de la calculadora: tipo de impuesto (tarjetas con icono), valor y, si aplica, mililitros #}
-{% from "iconos.html" import icono %}
-<form method="post" action="{{ url_for('calculos.insertar_calculo') }}" class="form-calculo" id="form-calculo">
+{% from "completa/iconos.html" import icono %}
+<form method="post" action="{{ url_for('completa.calcular') }}" class="form-calculo" id="form-calculo">
   <p class="paso-titulo"><b>1</b> Elige el tipo de producto o impuesto</p>
   <div class="selector">
     {% for item in opciones %}{% set c = item.categoria %}{% set i = item.info %}
     <label class="opcion">
       <input type="radio" name="categoria" value="{{ c.clave }}" required {{ 'checked' if c.clave == elegida }}
-             data-ml="{{ 'si' if c.pide_mililitros() else 'no' }}" data-etiqueta="{{ c.etiqueta_valor() }}"
-             data-resumen="{{ i.resumen }}" data-guia="{{ url_for('guia.guia_impuestos') }}#{{ c.clave }}">
+             data-ml="{{ 'si' if c.pide_ml else 'no' }}" data-etiqueta="{{ c.etiqueta }}"
+             data-resumen="{{ i.resumen }}" data-guia="{{ url_for('completa.guia') }}#{{ c.clave }}">
       <span class="opcion-caja">{{ icono(i.icono, 24) }}<strong>{{ c.nombre }}</strong><small>{{ i.tarifa }}</small></span>
     </label>
     {% endfor %}
@@ -24,4 +24,4 @@
   <p class="nota">Escribe los números sin separador de miles (50000, no 50.000).</p>
   <button type="submit">{{ icono("calculadora", 18) }}Calcular y guardar</button>
 </form>
-<script src="{{ url_for('static', filename='calculadora.js') }}"></script>
+<script src="{{ url_for('static', filename='completa/calculadora.js') }}"></script>

@@ -1,163 +1,150 @@
+"""
+Pertenece a la capa de Acceso a Datos (Controller)
+
+Es el único que habla con la base de datos PostgreSQL:
+crea la tabla calculos, guarda cálculos y los busca.
+"""
 import os
 import sys
-from pathlib import Path
-
-RAIZ = Path(__file__).resolve().parents[2]
-sys.path.append(str(RAIZ))          # para encontrar secret_config.py
-sys.path.append(str(RAIZ / "src"))  # para encontrar los paquetes model y controller
+sys.path.append("src")
 
 import psycopg2
-import psycopg2.errors
 
 from model.calculo import Calculo
-from model.categoria import Categoria
-from model.excepciones import (ErrorBaseDeDatos, ErrorConexion, ErrorConfiguracion, ErrorNoEncontrado,
-                               ErrorTablaNoExiste, ErrorValorInvalido)
 
 
-class CalculosController:
+class ErrorNoEncontrado(Exception):
+    """ Se dispara cuando una fila que se busca no existe en la base de datos """
+    pass
+
+
+def obtener_cursor():
     """
-    Pertenece a la Capa de Acceso a Datos (Controller)
-
-    Crea y borra la tabla calculos, e inserta y busca Calculos en la base de datos PostgreSQL
+    Crea la conexión a la base de datos y retorna un cursor para ejecutar instrucciones
     """
+    try:
+        # En mi computador los datos secretos están en el archivo secret_config.py
+        # (ese archivo NO se sube a GitHub, está en el .gitignore)
+        import secret_config
+        host = secret_config.PGHOST
+        base_de_datos = secret_config.PGDATABASE
+        usuario = secret_config.PGUSER
+        clave = secret_config.PGPASSWORD
+        puerto = secret_config.PGPORT
+    except ImportError:
+        # En Render no existe ese archivo, ahí los datos secretos se guardan como variables de entorno
+        host = os.environ["PGHOST"]
+        base_de_datos = os.environ["PGDATABASE"]
+        usuario = os.environ["PGUSER"]
+        clave = os.environ["PGPASSWORD"]
+        puerto = os.environ["PGPORT"]
 
-    @staticmethod
-    def crear_tabla():
-        """ Crea la tabla calculos ejecutando el script sql/crear-calculos.sql """
-        CalculosController._ejecutar_script("crear-calculos.sql")
+    connection = psycopg2.connect(database=base_de_datos, user=usuario, password=clave, host=host, port=puerto)
 
-    @staticmethod
-    def borrar_tabla():
-        """ Borra la tabla calculos ejecutando el script sql/borrar-calculos.sql """
-        CalculosController._ejecutar_script("borrar-calculos.sql")
+    # Todas las instrucciones se ejecutan a través de un cursor
+    return connection.cursor()
 
-    @staticmethod
-    def borrar_filas():
-        """ Borra todos los calculos guardados, pero deja la tabla """
-        CalculosController._ejecutar("delete from calculos")
 
-    @staticmethod
-    def existe_tabla() -> bool:
-        """ Indica si la tabla calculos ya fue creada en la base de datos """
-        fila = CalculosController._ejecutar(
-            "select to_regclass('calculos') is not null",
-            traer="uno")
-        return fila[0]
+def crear_tabla():
+    """ Crea la tabla calculos con el script sql/crear-calculos.sql. Si ya existe no pasa nada """
+    with open("sql/crear-calculos.sql", "r") as archivo:
+        consulta = archivo.read()
 
-    @staticmethod
-    def contar_calculos() -> int:
-        """ Retorna cuantos calculos hay guardados. Dispara ErrorTablaNoExiste si la tabla no existe """
-        fila = CalculosController._ejecutar("select count(*) from calculos", traer="uno")
-        return fila[0]
+    cursor = obtener_cursor()
+    cursor.execute(consulta)
 
-    @staticmethod
-    def insertar(calculo: Calculo) -> int:
-        """ Recibe una instancia de la clase Calculo, la inserta en la tabla y retorna su id """
-        fila = CalculosController._ejecutar(
-            """insert into calculos (categoria, valor, mililitros, impuesto)
-               values (%s, %s, %s, %s)
-               returning id_calculo, fecha""",
-            (calculo.categoria, calculo.valor, calculo.mililitros, calculo.impuesto),
-            traer="uno")
-        calculo.id_calculo, calculo.fecha = fila
-        return calculo.id_calculo
+    # Las instrucciones que cambian la base de datos necesitan commit() para que queden guardadas
+    cursor.connection.commit()
+    cursor.connection.close()
 
-    @staticmethod
-    def buscar_calculo(id_calculo: int) -> Calculo:
-        """ Trae un calculo dado su id. Dispara una excepcion si no existe """
-        try:
-            id_calculo = int(id_calculo)
-        except (TypeError, ValueError):
-            raise ErrorValorInvalido("El id debe ser un número entero") from None
 
-        fila = CalculosController._ejecutar(
-            """select id_calculo, categoria, valor, mililitros, impuesto, fecha
-               from calculos where id_calculo = %s""",
-            (id_calculo,), traer="uno")
-        if fila is None:
-            raise ErrorNoEncontrado(f"No existe un cálculo con id {id_calculo}")
-        return CalculosController._a_calculo(fila)
+def borrar_filas():
+    """
+    Borra todos los cálculos guardados (DELETE), pero deja la tabla.
 
-    @staticmethod
-    def buscar_por_categoria(categoria: str) -> list:
-        """ Trae todos los calculos de una categoria """
-        Categoria.obtener(categoria)  # dispara una excepcion si la categoria no existe
-        filas = CalculosController._ejecutar(
-            """select id_calculo, categoria, valor, mililitros, impuesto, fecha
-               from calculos where categoria = %s order by id_calculo""",
-            (categoria,), traer="todos")
-        return [CalculosController._a_calculo(fila) for fila in filas]
+    ATENCIÓN: solo se usa en las pruebas. Si se llama en la base de datos real se pierde todo
+    """
+    cursor = obtener_cursor()
+    cursor.execute("delete from calculos")
+    cursor.connection.commit()
+    cursor.connection.close()
 
-    @staticmethod
-    def buscar_todos() -> list:
-        """ Trae todos los calculos guardados """
-        filas = CalculosController._ejecutar(
-            """select id_calculo, categoria, valor, mililitros, impuesto, fecha
-               from calculos order by id_calculo""",
-            traer="todos")
-        return [CalculosController._a_calculo(fila) for fila in filas]
 
-    @staticmethod
-    def _a_calculo(fila) -> Calculo:
-        return Calculo(id_calculo=fila[0], categoria=fila[1], valor=fila[2],
-                       mililitros=fila[3], impuesto=fila[4], fecha=fila[5])
+def insertar(calculo: Calculo):
+    """
+    Guarda un Calculo en la tabla. Al terminar le pone el id y la fecha que le dio la base de datos
+    """
+    cursor = obtener_cursor()
 
-    @staticmethod
-    def _ejecutar_script(nombre_archivo: str):
-        with open(RAIZ / "sql" / nombre_archivo, "r", encoding="utf-8") as archivo:
-            consulta = archivo.read()
-        CalculosController._ejecutar(consulta)
+    # Los %s los llena psycopg2 con los valores de la tupla. Así no se pega el texto del usuario
+    # directamente en el SQL y nadie puede meter instrucciones raras.
+    cursor.execute(
+        """insert into calculos (categoria, valor, mililitros, impuesto)
+           values (%s, %s, %s, %s)
+           returning id_calculo, fecha""",
+        (calculo.categoria, calculo.valor, calculo.mililitros, calculo.impuesto)
+    )
 
-    @staticmethod
-    def _ejecutar(consulta: str, parametros=None, traer=None):
-        """ Ejecuta una consulta, confirma los cambios y cierra la conexion """
-        cursor = CalculosController.obtener_cursor()
-        try:
-            cursor.execute(consulta, parametros)
-            resultado = None
-            if traer == "uno":
-                resultado = cursor.fetchone()
-            elif traer == "todos":
-                resultado = cursor.fetchall()
-            # Todas las instrucciones que modifiquen la BD necesitan un commit para confirmar los cambios
-            cursor.connection.commit()
-            return resultado
-        except psycopg2.errors.UndefinedTable as error:
-            raise ErrorTablaNoExiste("La tabla 'calculos' no existe. Cree las tablas desde el menú (o con crear_tablas.py).") from error
-        except psycopg2.Error as error:
-            raise ErrorBaseDeDatos(f"Error de base de datos: {str(error).strip()}") from error
-        finally:
-            cursor.connection.close()
+    # "returning" nos devuelve el id y la fecha que se acaban de crear
+    calculo.id_calculo, calculo.fecha = cursor.fetchone()
 
-    @staticmethod
-    def _leer_configuracion() -> dict:
-        """ Datos de conexion: de secret_config.py (local) o, si no existe, de variables de entorno (web) """
-        claves = ("PGHOST", "PGDATABASE", "PGUSER", "PGPASSWORD", "PGPORT")
-        try:
-            import secret_config
-        except ImportError:
-            configuracion = {clave: os.environ.get(clave) for clave in claves}
-        else:
-            configuracion = {clave: getattr(secret_config, clave, None) for clave in claves}
-        faltan = [clave for clave, valor in configuracion.items()
-                  if valor is None or (valor == "" and clave != "PGPASSWORD")]  # una base local puede no tener contraseña
-        if faltan:
-            raise ErrorConfiguracion("Faltan datos de conexión: cree secret_config.py a partir de "
-                                     "secret_config_sample.py (o defina las variables PGHOST, PGDATABASE, "
-                                     "PGUSER, PGPASSWORD y PGPORT). Vea el README.")
-        return configuracion
+    cursor.connection.commit()
+    cursor.connection.close()
 
-    @staticmethod
-    def obtener_cursor():
-        """ Crea la conexion a la base de datos y retorna un cursor para hacer consultas """
-        datos = CalculosController._leer_configuracion()
-        try:
-            connection = psycopg2.connect(database=datos["PGDATABASE"], user=datos["PGUSER"],
-                                          password=datos["PGPASSWORD"], host=datos["PGHOST"],
-                                          port=datos["PGPORT"], connect_timeout=10)
-        except psycopg2.OperationalError as error:
-            raise ErrorConexion("No se pudo conectar a la base de datos. Revise los datos de "
-                                "conexión y su conexión a internet.") from error
-        # Todas las instrucciones se ejecutan a traves de un cursor
-        return connection.cursor()
+
+def convertir_fila_en_calculo(fila) -> Calculo:
+    """ Convierte una fila que viene de la base de datos en un objeto Calculo """
+    # La base de datos devuelve los números como Decimal, aquí los pasamos a float
+    # para que sean del mismo tipo que usa el Model
+    return Calculo(
+        id_calculo=fila[0],
+        categoria=fila[1],
+        valor=float(fila[2]),
+        mililitros=float(fila[3]),
+        impuesto=float(fila[4]),
+        fecha=fila[5]
+    )
+
+
+def buscar_por_id(id_calculo: int) -> Calculo:
+    """ Trae un cálculo dado su id. Dispara ErrorNoEncontrado si no existe """
+    cursor = obtener_cursor()
+    cursor.execute(
+        "select id_calculo, categoria, valor, mililitros, impuesto, fecha from calculos where id_calculo = %s",
+        (id_calculo,)
+    )
+    fila = cursor.fetchone()
+    cursor.connection.close()
+
+    if fila is None:
+        raise ErrorNoEncontrado(
+            f"No existe ningún cálculo con el id {id_calculo}. Revise el número o use 'Ver todos' para ver los ids que hay."
+        )
+
+    return convertir_fila_en_calculo(fila)
+
+
+def buscar_por_categoria(categoria: str) -> list:
+    """ Trae todos los cálculos de un tipo de producto. Si no hay ninguno, retorna una lista vacía """
+    cursor = obtener_cursor()
+    cursor.execute(
+        """select id_calculo, categoria, valor, mililitros, impuesto, fecha
+           from calculos where categoria = %s order by id_calculo""",
+        (categoria,)
+    )
+    filas = cursor.fetchall()
+    cursor.connection.close()
+
+    return [convertir_fila_en_calculo(fila) for fila in filas]
+
+
+def buscar_todos() -> list:
+    """ Trae todos los cálculos guardados """
+    cursor = obtener_cursor()
+    cursor.execute(
+        "select id_calculo, categoria, valor, mililitros, impuesto, fecha from calculos order by id_calculo"
+    )
+    filas = cursor.fetchall()
+    cursor.connection.close()
+
+    return [convertir_fila_en_calculo(fila) for fila in filas]

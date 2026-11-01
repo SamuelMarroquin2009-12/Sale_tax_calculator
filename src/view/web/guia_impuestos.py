@@ -1,3 +1,20 @@
+"""
+Datos de texto de la página completa (la visual): nombres, iconos y explicaciones de cada impuesto.
+Solo son textos, las cuentas del impuesto las hace el Model (calculo.py).
+"""
+
+# Nombre corto de cada tipo de producto (sin la tarifa, porque la tarifa se muestra aparte)
+NOMBRES = {
+    "canasta": "Canasta básica / Exento",
+    "alimentos5": "Alimentos con IVA 5%",
+    "general19": "Bienes generales IVA 19%",
+    "restaurante": "Restaurantes (INC 8%)",
+    "licores": "Licores",
+    "suntuarios": "Bienes suntuarios",
+    "bolsas": "Bolsas plásticas",
+    "cigarrillos": "Cigarrillos / Vapeadores",
+}
+
 CONCEPTOS_CLAVE = [
     (
         "¿Qué es un impuesto?",
