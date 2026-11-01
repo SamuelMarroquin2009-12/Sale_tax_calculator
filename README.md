@@ -9,17 +9,6 @@ Aplicación web que calcula el impuesto de una compra en Colombia, lo guarda en 
 - Isabella Ruiz Velasquez
 - Samuel Marroquín
 
-## Las dos versiones de la página web
-
-La aplicación tiene dos páginas web que usan el mismo Model y el mismo Controller, solo cambia cómo se ven:
-
-| Versión | Dirección | Qué es |
-| --- | --- | --- |
-| Simple (la que se presenta) | `/` | HTML básico: menú, calcular, buscar y crear tablas |
-| Completa | `/completa/` | La versión visual de Isabella: colores, iconos, guía de impuestos y modo oscuro |
-
-Desde el menú de la versión simple hay un enlace a la completa, y en el pie de la completa hay uno de regreso.
-
 ## Entradas, proceso y salidas
 
 - **Entradas:** el tipo de producto, el valor de la compra (o la cantidad de bolsas) y los mililitros, que solo se usan en cigarrillos y vapeadores.
@@ -47,15 +36,12 @@ Sale_tax_calculator/
 ├── requirements.txt
 ├── secret_config_sample.py    # plantilla de los datos de la base de datos
 ├── sql/
-│   ├── crear-calculos.sql     # crea la tabla calculos
-│   └── borrar-calculos.sql    # borra la tabla (solo la versión completa lo usa)
+│   └── crear-calculos.sql     # crea la tabla calculos
 ├── src/
-│   ├── model/                 # reglas del negocio: calculo.py (y formato.py para mostrar pesos)
-│   ├── controller/            # acceso a la base de datos: calculos_controller.py y tablas_controller.py
-│   └── view/web/              # los Blueprints: vista_calculos.py (simple) y vista_completa.py (completa)
-├── templates/                 # páginas HTML de la versión simple
-│   └── completa/              # páginas HTML de la versión completa
-├── static/completa/           # estilos, modo oscuro y scripts de la versión completa
+│   ├── model/                 # reglas del negocio: calculo.py
+│   ├── controller/            # acceso a la base de datos: calculos_controller.py
+│   └── view/web/              # el Blueprint con las páginas: vista_calculos.py
+├── templates/                 # páginas HTML
 ├── test/                      # pruebas unitarias
 └── doc/                       # casos de prueba y documentos
 ```
@@ -90,8 +76,8 @@ copy secret_config_sample.py secret_config.py
 python app.py
 ```
 
-6. Abra http://127.0.0.1:5000 en el navegador (la versión completa está en http://127.0.0.1:5000/completa/).
-7. Como la base de datos está en blanco, lo primero es entrar a **Crear las tablas de la base de datos** en el menú. Después ya puede calcular y buscar. (La versión completa además crea la tabla sola al guardar el primer cálculo.)
+6. Abra http://127.0.0.1:5000 en el navegador.
+7. Como la base de datos está en blanco, lo primero es entrar a **Crear las tablas de la base de datos** en el menú. Después ya puede calcular y buscar.
 
 ## Pruebas unitarias
 
@@ -106,7 +92,6 @@ OJO: las pruebas del controlador borran todos los cálculos de la base de datos 
 - Build Command: `pip install -r requirements.txt`
 - Start Command: `flask run -p 10000 -h 0.0.0.0`
 - En Environment agregue las variables `PGHOST`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` y `PGPORT` con los datos de la base de datos.
-- Opcionales: `APP_ENV=production` desactiva el botón de borrar tablas de la versión completa (para no perder los datos publicados) y `SECRET_KEY` es la clave que usa Flask para los avisos de esa versión.
 
 ## Problemas comunes
 
