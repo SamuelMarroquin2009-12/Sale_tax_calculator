@@ -1,0 +1,7 @@
+{% extends "completa/base.html" %}
+{% from "completa/iconos.html" import icono %}
+{% block titulo %}Guía de impuestos · Calculadora de Impuestos de Colombia{% endblock %}
+{% block contenido %}
+<p class="migas"><a href="{{ url_for('completa.inicio') }}">Inicio</a> / Guía de impuestos</p>
+{% include "completa/_guia.html" %}
+{% endblock %}
