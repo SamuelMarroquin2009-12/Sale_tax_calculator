@@ -31,9 +31,10 @@
             <tr>
                 <td>{{ c.id_calculo }}</td>
                 <td>{{ categorias[c.categoria] }}</td>
-                <td>{{ c.valor }}</td>
-                <td>{{ c.mililitros }}</td>
-                <td>{{ c.impuesto }}</td>
+                <!-- "%.2f"|format(...) muestra el número siempre con 2 decimales, por ejemplo 19000.00 -->
+                <td>{{ "%.2f"|format(c.valor) }}</td>
+                <td>{{ "%.2f"|format(c.mililitros) }}</td>
+                <td>{{ "%.2f"|format(c.impuesto) }}</td>
                 <td>{{ c.fecha.strftime("%Y-%m-%d %H:%M") }}</td>
             </tr>
             {% endfor %}
