@@ -46,7 +46,7 @@ def guardar_calculo():
     try:
         calculo.calcular_impuesto()
         calculos_controller.insertar(calculo)
-        mensaje = f"Listo, el cálculo quedó guardado. El impuesto a pagar es ${calculo.impuesto}"
+        mensaje = f"Listo, el cálculo quedó guardado. El impuesto a pagar es ${calculo.impuesto:.2f}"
         lista = [calculo]
     except (ErrorValorInvalido, ErrorCategoriaDesconocida) as error:
         # Estos son los errores que nosotros mismos definimos, el mensaje ya es claro para el usuario

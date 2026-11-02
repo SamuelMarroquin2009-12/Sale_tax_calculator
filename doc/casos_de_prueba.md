@@ -1,39 +1,54 @@
 # Casos de prueba
 
-Pruebas unitarias con `unittest` (39 en total). Ejecución:
+Pruebas unitarias con `unittest` (35 en total). Se ejecutan con:
 
-```bash
+```
 python -m unittest discover -s test -p "*test*.py" -v
 ```
 
-## test/test_calculo.py – base de datos (20 pruebas)
+## test/test_calculo.py: reglas del negocio, sin base de datos (24 pruebas)
 
-| Funcionalidad | Tipo | Prueba | Resultado esperado |
-|---|---|---|---|
-| Crear tabla | Normal | `test_crear_tabla_normal` | Se puede crear (también dos veces) y queda vacía |
-| Crear tabla | Error | `test_crear_tabla_error_sin_conexion` | Con contraseña incorrecta: "No se pudo conectar a la base de datos" |
-| Borrar tabla | Normal | `test_borrar_tabla_normal` | La tabla se borra; buscar sin tabla da "La tabla 'calculos' no existe" |
-| Borrar tabla | Error | `test_borrar_tabla_error_sin_conexion` | Con contraseña incorrecta: "No se pudo conectar a la base de datos" |
-| Insertar | Normal | `test_insertar_general_19` | impuesto 19000.00 |
-| Insertar | Normal | `test_insertar_canasta_exenta` | impuesto 0.00 |
-| Insertar | Normal | `test_insertar_bolsas` | impuesto 365.00 |
-| Insertar | Normal | `test_insertar_cigarrillos_con_mililitros` | impuesto 24500.00 |
-| Insertar | Error | `test_insertar_error_valor_negativo` | Excepción "negativo"; no se guarda nada |
-| Insertar | Error | `test_insertar_error_valor_no_numerico` | Excepción "número" |
-| Insertar | Error | `test_insertar_error_categoria_invalida` | Excepción "Categoría" |
-| Insertar | Error | `test_insertar_error_bolsas_decimales` | Excepción "entero" |
-| Insertar | Error | `test_insertar_error_rechazado_por_la_base_de_datos` | La BD rechaza el valor negativo (check) |
-| Buscar | Normal | `test_buscar_por_id` | Trae el cálculo con su impuesto |
-| Buscar | Normal | `test_buscar_por_categoria` | 1 resultado, impuesto 39200.00 |
-| Buscar | Normal | `test_buscar_todos` | Trae los 2 guardados |
-| Buscar | Normal | `test_buscar_categoria_sin_resultados` | Lista vacía |
-| Buscar | Error | `test_buscar_error_id_inexistente` | `ErrorNoEncontrado`: "No existe un cálculo con id ..." |
-| Buscar | Error | `test_buscar_error_id_no_numerico` | Excepción "entero" |
-| Buscar | Error | `test_buscar_error_categoria_invalida` | Excepción "Categoría" |
+| Tipo | Prueba | Qué verifica |
+| --- | --- | --- |
+| Normal | `test_normal_canasta` | 50000 en canasta básica: impuesto 0 |
+| Normal | `test_normal_alimentos_5` | 100000 al 5%: 5000 |
+| Normal | `test_normal_general_19` | 100000 al 19%: 19000 |
+| Normal | `test_normal_restaurante` | 100000 al 8%: 8000 |
+| Normal | `test_normal_licores` | 200000 al 49%: 98000 |
+| Normal | `test_normal_suntuarios` | 100000 al 19%: 19000 |
+| Normal | `test_normal_bolsas` | 10 bolsas x 73: 730 |
+| Normal | `test_normal_cigarrillos` | 100000 x 0.30 + 10 ml x 2000: 50000 |
+| Extraordinario | `test_extraordinario_valor_cero` | valor 0: impuesto 0 |
+| Extraordinario | `test_extraordinario_coma_decimal` | "2,5" se entiende como 2.5 |
+| Extraordinario | `test_extraordinario_valor_maximo` | el valor máximo permitido todavía se calcula |
+| Extraordinario | `test_extraordinario_cigarrillos_sin_mililitros` | sin mililitros solo cobra el 30% |
+| Extraordinario | `test_extraordinario_espacios_en_el_valor` | "  100000  " se acepta |
+| Error | `test_error_valor_texto` | "abc" dispara `ErrorValorInvalido` |
+| Error | `test_error_valor_vacio` | "" dispara `ErrorValorInvalido` |
+| Error | `test_error_valor_negativo` | "-5" dispara `ErrorValorInvalido` |
+| Error | `test_error_valor_demasiado_grande` | "1e30" dispara `ErrorValorInvalido` |
+| Error | `test_error_valor_infinito` | "inf" dispara `ErrorValorInvalido` |
+| Error | `test_error_valor_nan` | "nan" dispara `ErrorValorInvalido` |
+| Error | `test_error_bolsas_con_decimales` | 2.5 bolsas dispara `ErrorValorInvalido` |
+| Error | `test_error_mililitros_texto` | mililitros "abc" dispara `ErrorValorInvalido` |
+| Error | `test_error_mililitros_negativos` | mililitros "-3" dispara `ErrorValorInvalido` |
+| Error | `test_error_categoria_desconocida` | "zapatos" dispara `ErrorCategoriaDesconocida` |
+| Error | `test_error_mensaje_dice_cual_fue_el_dato` | el mensaje de error incluye el dato escrito |
 
-## test/test_categoria.py – reglas de negocio, sin base de datos (19 pruebas)
+## test/test_calculos_controller.py: base de datos (11 pruebas)
 
-- 10 normales: las 8 categorías, valor 0 y coma decimal (`1000,50`).
-- 8 de error: valor vacío, texto, negativo, infinito, bolsas decimales, mililitros vacíos o
-  negativos, categoría inválida.
-- 1 de formato colombiano de pesos (`$19.000,00`).
+Estas pruebas borran los cálculos de la base de datos que esté en `secret_config.py`. Usar una base de datos de pruebas.
+
+| Funcionalidad | Prueba | Qué verifica |
+| --- | --- | --- |
+| Insertar | `test_insertar_y_buscar_por_id` | lo guardado se trae igual con el id |
+| Insertar | `test_insertar_pone_id_y_fecha` | la base de datos le pone id y fecha |
+| Insertar | `test_insertar_cigarrillos_guarda_los_mililitros` | se guardan los mililitros |
+| Insertar | `test_insertar_bolsas` | 10 bolsas: impuesto 730 |
+| Insertar | `test_dos_calculos_tienen_ids_diferentes` | los ids no se repiten |
+| Buscar | `test_buscar_por_categoria` | solo trae los de esa categoría |
+| Buscar | `test_buscar_por_categoria_sin_resultados` | lista vacía |
+| Buscar | `test_buscar_todos` | trae los 3 guardados |
+| Buscar | `test_buscar_todos_con_la_tabla_vacia` | lista vacía |
+| Error | `test_error_buscar_id_que_no_existe` | dispara `ErrorNoEncontrado` |
+| Crear tabla | `test_crear_tabla_dos_veces_no_falla` | crearla otra vez no da error ni borra datos |
