@@ -87,6 +87,6 @@ Ojo: las pruebas del controlador borran los cálculos de la base de datos que es
 ## Problemas comunes
 
 - **`flask` no se reconoce como comando:** todavía no se instalaron las librerías (paso 3), o Python no está en el PATH. Se puede ejecutar con `python app.py` y funciona igual.
-- **Sale un mensaje de problema con la base de datos:** revise los datos de `secret_config.py` y que ya haya pulsado **Crear las tablas** en el menú.
+- **Sale un mensaje de problema con la base de datos:** revise los datos de `secret_config.py` y que ya haya pulsado **Crear las tablas** en el menú. El detalle del error no sale en la página, sale en la consola donde corre la aplicación (en Render, en la pestaña Logs).
 - **ModuleNotFoundError:** faltan las librerías, haga el paso 3.
 - **El puerto 5000 está ocupado:** cierre el programa que lo usa o ejecute `python -m flask run -p 5001`.

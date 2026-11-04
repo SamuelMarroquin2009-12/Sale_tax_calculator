@@ -14,11 +14,18 @@ import controller.calculos_controller as calculos_controller
 # Este es el Blueprint, en app.py lo registramos para que Flask conozca estas páginas
 blueprint = Blueprint("vista_calculos", __name__)
 
-# Mensajes que se repiten
-MENSAJE_BASE_DE_DATOS = (
-    "Hubo un problema con la base de datos. Revise los datos de conexión y que ya haya "
-    "creado las tablas desde el menú. Detalle: "
-)
+def mensaje_base_de_datos(error):
+    """
+    Retorna el mensaje que ve el usuario cuando falla la base de datos.
+
+    El detalle del error (que puede tener el nombre del servidor o del usuario) NO se muestra
+    en la página, solo se imprime en la consola donde corre la aplicación (en Render, en Logs).
+    """
+    print("Error de base de datos:", error)
+    return (
+        "Hubo un problema con la base de datos. Revise los datos de conexión y que ya haya "
+        "creado las tablas desde el menú."
+    )
 
 
 @blueprint.route("/")
@@ -54,7 +61,7 @@ def guardar_calculo():
         lista = []
     except Exception as error:
         # Cualquier otro error, casi siempre es la base de datos
-        mensaje = MENSAJE_BASE_DE_DATOS + str(error)
+        mensaje = mensaje_base_de_datos(error)
         lista = []
 
     return render_template("resultados.html", mensaje=mensaje, calculos=lista, categorias=CATEGORIAS)
@@ -83,7 +90,7 @@ def buscar_calculo_por_id():
         mensaje = str(error)
         lista = []
     except Exception as error:
-        mensaje = MENSAJE_BASE_DE_DATOS + str(error)
+        mensaje = mensaje_base_de_datos(error)
         lista = []
 
     return render_template("resultados.html", mensaje=mensaje, calculos=lista, categorias=CATEGORIAS)
@@ -104,7 +111,7 @@ def buscar_calculos_por_categoria():
         mensaje = str(error)
         lista = []
     except Exception as error:
-        mensaje = MENSAJE_BASE_DE_DATOS + str(error)
+        mensaje = mensaje_base_de_datos(error)
         lista = []
 
     return render_template("resultados.html", mensaje=mensaje, calculos=lista, categorias=CATEGORIAS)
@@ -117,7 +124,7 @@ def buscar_todos_los_calculos():
         lista = calculos_controller.buscar_todos()
         mensaje = f"Hay {len(lista)} cálculo(s) guardado(s)"
     except Exception as error:
-        mensaje = MENSAJE_BASE_DE_DATOS + str(error)
+        mensaje = mensaje_base_de_datos(error)
         lista = []
 
     return render_template("resultados.html", mensaje=mensaje, calculos=lista, categorias=CATEGORIAS)
@@ -130,6 +137,6 @@ def crear_tablas():
         calculos_controller.crear_tabla()
         mensaje = "Listo, la tabla calculos está creada"
     except Exception as error:
-        mensaje = MENSAJE_BASE_DE_DATOS + str(error)
+        mensaje = mensaje_base_de_datos(error)
 
     return render_template("resultados.html", mensaje=mensaje, calculos=[], categorias=CATEGORIAS)
