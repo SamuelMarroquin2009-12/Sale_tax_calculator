@@ -1,5 +1,7 @@
 # Revisión automatizada de código
 
+> **Nota:** este documento es de la etapa anterior del proyecto (la versión con pruebas en `tests/` y la lógica en `src/model/impuestos_logic.py`). Esos archivos ya no existen: el proyecto se reorganizó en MVC con Flask para la entrega de la aplicación web. Se deja como evidencia del proceso de revisión. Las pruebas actuales están en `test/` y se describen en `doc/casos_de_prueba.md`.
+
 ## Herramienta utilizada
 Para la revisión automatizada del proyecto se utilizó Ruff, una herramienta de análisis estático para código Python.
 
