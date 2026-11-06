@@ -39,7 +39,7 @@ Seguimos el patrón MVC, cada carpeta tiene su propio trabajo:
 
 ## Cómo ejecutarla en su computador (con una base de datos en blanco)
 
-1. Necesita tener Python 3 y una base de datos PostgreSQL vacía. Puede ser una de su computador o una gratis en https://neon.tech o https://render.com.
+1. Necesita tener Python 3 y una base de datos PostgreSQL vacía (versión 13 o superior, porque el id de cada cálculo lo genera `gen_random_uuid()`). Puede ser una de su computador o una gratis en https://neon.tech o https://render.com.
 2. Descargue el proyecto y entre a la carpeta:
 
 ```
@@ -86,6 +86,7 @@ Ojo: las pruebas del controlador borran los cálculos de la base de datos que es
 
 ## Problemas comunes
 
+- **La tabla `calculos` ya existía de una versión anterior (con id numérico):** hay que borrarla una vez con `drop table calculos;` desde `psql` o desde el panel de la base de datos, y volver a pulsar **Crear las tablas**.
 - **`flask` no se reconoce como comando:** todavía no se instalaron las librerías (paso 3), o Python no está en el PATH. Se puede ejecutar con `python app.py` y funciona igual.
 - **Sale un mensaje de problema con la base de datos:** revise los datos de `secret_config.py` y que ya haya pulsado **Crear las tablas** en el menú. El detalle del error no sale en la página, sale en la consola donde corre la aplicación (en Render, en la pestaña Logs).
 - **ModuleNotFoundError:** faltan las librerías, haga el paso 3.

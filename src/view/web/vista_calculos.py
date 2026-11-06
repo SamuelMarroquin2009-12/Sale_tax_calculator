@@ -76,16 +76,13 @@ def mostrar_formulario_buscar():
 @blueprint.route("/buscar-id")
 def buscar_calculo_por_id():
     """ Busca un solo cálculo por su id """
-    texto_id = request.args["id"]
+    # strip() quita los espacios que puedan quedar al copiar y pegar el id
+    texto_id = request.args["id"].strip()
 
     try:
-        calculo = calculos_controller.buscar_por_id(int(texto_id))
+        calculo = calculos_controller.buscar_por_id(texto_id)
         mensaje = "Este es el cálculo que encontramos"
         lista = [calculo]
-    except ValueError:
-        # int() dispara ValueError cuando lo que escribieron no es un número entero
-        mensaje = f"El id '{texto_id}' no es un número entero. Escriba solo dígitos, por ejemplo 3."
-        lista = []
     except calculos_controller.ErrorNoEncontrado as error:
         mensaje = str(error)
         lista = []

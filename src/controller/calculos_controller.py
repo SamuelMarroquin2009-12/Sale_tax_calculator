@@ -106,19 +106,29 @@ def convertir_fila_en_calculo(fila):
     )
 
 
-def buscar_por_id(id_calculo: int):
-    """ Trae un cálculo dado su id. Dispara ErrorNoEncontrado si no existe """
+def buscar_por_id(id_calculo: str):
+    """
+    Trae un cálculo dado su id (un uuid escrito como texto).
+    Dispara ErrorNoEncontrado si no existe o si el texto no tiene forma de uuid
+    """
     cursor = obtener_cursor()
-    cursor.execute(
-        "select id_calculo, categoria, valor, mililitros, impuesto, fecha from calculos where id_calculo = %s",
-        (id_calculo,)
-    )
-    fila = cursor.fetchone()
+    try:
+        cursor.execute(
+            "select id_calculo, categoria, valor, mililitros, impuesto, fecha from calculos where id_calculo = %s",
+            (id_calculo,)
+        )
+        fila = cursor.fetchone()
+    except psycopg2.DataError:
+        # PostgreSQL dispara DataError cuando el texto no se puede convertir a uuid (por ejemplo "abc")
+        cursor.connection.close()
+        raise ErrorNoEncontrado(
+            f"El id '{id_calculo}' no es un id válido. Copie el id completo desde 'Ver todos'."
+        )
     cursor.connection.close()
 
     if fila is None:
         raise ErrorNoEncontrado(
-            f"No existe ningún cálculo con el id {id_calculo}. Revise el número o use 'Ver todos' para ver los ids que hay."
+            f"No existe ningún cálculo con el id {id_calculo}. Revise el id o use 'Ver todos' para ver los ids que hay."
         )
 
     return convertir_fila_en_calculo(fila)
@@ -129,7 +139,7 @@ def buscar_por_categoria(categoria: str):
     cursor = obtener_cursor()
     cursor.execute(
         """select id_calculo, categoria, valor, mililitros, impuesto, fecha
-           from calculos where categoria = %s order by id_calculo""",
+           from calculos where categoria = %s order by fecha""",
         (categoria,)
     )
     filas = cursor.fetchall()
@@ -147,7 +157,7 @@ def buscar_todos():
     """ Trae todos los cálculos guardados """
     cursor = obtener_cursor()
     cursor.execute(
-        "select id_calculo, categoria, valor, mililitros, impuesto, fecha from calculos order by id_calculo"
+        "select id_calculo, categoria, valor, mililitros, impuesto, fecha from calculos order by fecha"
     )
     filas = cursor.fetchall()
     cursor.connection.close()
