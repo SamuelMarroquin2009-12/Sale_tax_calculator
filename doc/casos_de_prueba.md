@@ -1,6 +1,6 @@
 # Casos de prueba
 
-Pruebas unitarias con `unittest` (35 en total). Se ejecutan con:
+Pruebas unitarias con `unittest` (36 en total). Se ejecutan con:
 
 ```
 python -m unittest discover -s test -p "*test*.py" -v
@@ -35,7 +35,7 @@ python -m unittest discover -s test -p "*test*.py" -v
 | Error | `test_error_categoria_desconocida` | "zapatos" dispara `ErrorCategoriaDesconocida` |
 | Error | `test_error_mensaje_dice_cual_fue_el_dato` | el mensaje de error incluye el dato escrito |
 
-## test/test_calculos_controller.py: base de datos (11 pruebas)
+## test/test_calculos_controller.py: base de datos (12 pruebas)
 
 Estas pruebas borran los cálculos de la base de datos que esté en `secret_config.py`. Usar una base de datos de pruebas.
 
@@ -50,5 +50,6 @@ Estas pruebas borran los cálculos de la base de datos que esté en `secret_conf
 | Buscar | `test_buscar_por_categoria_sin_resultados` | lista vacía |
 | Buscar | `test_buscar_todos` | trae los 3 guardados |
 | Buscar | `test_buscar_todos_con_la_tabla_vacia` | lista vacía |
-| Error | `test_error_buscar_id_que_no_existe` | dispara `ErrorNoEncontrado` |
+| Error | `test_error_buscar_id_que_no_existe` | un uuid que nadie tiene dispara `ErrorNoEncontrado` |
+| Error | `test_error_buscar_id_que_no_es_un_uuid` | el texto "abc" dispara `ErrorNoEncontrado` |
 | Crear tabla | `test_crear_tabla_dos_veces_no_falla` | crearla otra vez no da error ni borra datos |

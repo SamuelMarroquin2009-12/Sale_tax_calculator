@@ -111,8 +111,14 @@ class CalculosControllerTest(unittest.TestCase):
     # ---------- Casos de error ----------
 
     def test_error_buscar_id_que_no_existe(self):
+        # Es un uuid con buena forma, pero ningún cálculo lo tiene
         with self.assertRaises(calculos_controller.ErrorNoEncontrado):
-            calculos_controller.buscar_por_id(999999)
+            calculos_controller.buscar_por_id("00000000-0000-0000-0000-000000000000")
+
+    def test_error_buscar_id_que_no_es_un_uuid(self):
+        # Un texto cualquiera no se puede convertir a uuid, también debe dar ErrorNoEncontrado
+        with self.assertRaises(calculos_controller.ErrorNoEncontrado):
+            calculos_controller.buscar_por_id("abc")
 
     # ---------- Crear la tabla ----------
 
