@@ -41,6 +41,15 @@ IMPUESTO_POR_MILILITRO = 2000
 # sirve para que si alguien escribe un número gigante salga un mensaje y no un error raro.
 VALOR_MAXIMO = 999999999999
 
+# Más constantes para no dejar números ni textos sueltos dentro de calcular_impuesto
+DECIMALES_IMPUESTO = 2       # el impuesto se redondea a 2 decimales
+SIN_MILILITROS = 0           # las categorías que no usan mililitros los dejan en 0
+
+# Nombres de los datos que salen en los mensajes de error ("El valor abc no es válido...")
+NOMBRE_VALOR = "valor"
+NOMBRE_BOLSAS = "número de bolsas"
+NOMBRE_MILILITROS = "número de mililitros"
+
 
 class ErrorValorInvalido(Exception):
     """ Se dispara cuando el valor, la cantidad o los mililitros no son un número válido """
@@ -93,7 +102,7 @@ class Calculo:
     def calcular_impuesto(self):
         """
         Revisa que los datos estén bien, calcula el impuesto según la categoría y lo deja
-        en self.impuesto (redondeado a 2 decimales).
+        en self.impuesto (redondeado a DECIMALES_IMPUESTO decimales).
 
         Dispara ErrorCategoriaDesconocida o ErrorValorInvalido si algo está mal escrito
         """
@@ -104,28 +113,28 @@ class Calculo:
 
         if self.categoria == CATEGORIA_BOLSAS:
             # Aquí el "valor" es la cantidad de bolsas, y las bolsas se cuentan enteras
-            self.valor = convertir_a_numero(self.valor, "número de bolsas")
+            self.valor = convertir_a_numero(self.valor, NOMBRE_BOLSAS)
             if self.valor != int(self.valor):
                 raise ErrorValorInvalido(
                     f"El número de bolsas {self.valor} no es válido. Escriba un número entero."
                 )
-            self.mililitros = 0
+            self.mililitros = SIN_MILILITROS
             impuesto = self.valor * IMPUESTO_POR_BOLSA
 
         elif self.categoria == CATEGORIA_CIGARRILLOS:
             # Es la única que también necesita los mililitros
-            self.valor = convertir_a_numero(self.valor, "valor")
-            self.mililitros = convertir_a_numero(self.mililitros, "número de mililitros")
+            self.valor = convertir_a_numero(self.valor, NOMBRE_VALOR)
+            self.mililitros = convertir_a_numero(self.mililitros, NOMBRE_MILILITROS)
             impuesto = self.valor * TARIFA_CIGARRILLOS + self.mililitros * IMPUESTO_POR_MILILITRO
 
         else:
             # Todas las demás: un porcentaje del valor
-            self.valor = convertir_a_numero(self.valor, "valor")
-            self.mililitros = 0
+            self.valor = convertir_a_numero(self.valor, NOMBRE_VALOR)
+            self.mililitros = SIN_MILILITROS
             impuesto = self.valor * TARIFAS[self.categoria]
 
         # Redondeo para que no queden decimales raros por culpa del float (19000.000000000004)
-        self.impuesto = round(impuesto, 2)
+        self.impuesto = round(impuesto, DECIMALES_IMPUESTO)
         return self.impuesto
 
     def es_igual(self, otro):
